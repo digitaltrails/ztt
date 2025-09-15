@@ -1,7 +1,7 @@
 Transect Maintenance Project
 ============================
 
-A django web app for keeping track of transect maintainence outings and related issues.
+A [django](https://www.djangoproject.com/) web app for keeping track of transect maintainence outings and related issues.
 
 Loosly based on the following class diagram:
 
