@@ -1,0 +1,61 @@
+@startuml
+dataclass Line
+Line : Str name
+Line : LineType lineType
+Line : StationId startStationId
+Line : StationId endStationId
+
+
+dataclass Outing
+Outing : Datetime startTime
+Outing : Datetime endTime
+Outing : StationId startStationId
+Outing : StationId endStationId
+Outing : Decimal hours
+
+dataclass TeamMember
+TeamMember : Str name
+TeamMember : Str emailAddress
+
+dataclass Issue
+Issue : StationId startStationId
+Issue : IssueTypeEnum simpleIssue
+Issue : StationType stationType
+Issue : StationId|None endStationId
+Issue : Str|None description
+Issue : Image|None photo
+
+enum LineType {
+  Transect
+  MouseLine
+}
+
+enum StationType {
+   NovaCoil
+   NovaCoilBoxed
+   WoodenBox
+   WeirdBox
+}
+
+enum IssueTypeEnum {
+   Complicated
+   MissingStation
+   MissingHoop
+   MissingWire
+   SlightlyRotten
+   VeryRotten
+   NeedsReplacing
+   NeedsRope
+   RopeOnDeadTree
+   RequiresChainSaw
+   Flora
+   Fauna
+}
+
+
+Outing "1" --> "n" TeamMember : participants
+Outing --> Line : route
+
+
+Line "0" --> "n" Issue : issues
+@enduml
