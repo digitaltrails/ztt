@@ -1,0 +1,13 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools %}
+  <div class="object-tools">
+    {% block object-tools-items %}
+    {{ block.super }}  {# This includes the default object tools #}
+      <a href="{% url 'admin:worktracking_line_completion_report' %}" class="button">
+        View Completion Report
+      </a>
+    {% endblock %}
+  </div>
+{% endblock %}

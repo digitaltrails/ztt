@@ -1,0 +1,140 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Line Completion Report - {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    .completion-report {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    .completion-report th, .completion-report td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    .completion-report th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .completion-report th:hover {
+      background-color: #e6e6e6;
+    }
+    .completion-report tr:hover {
+      background-color: #f5f5f5;
+    }
+    .never {
+      color: #999;
+      font-style: italic;
+    }
+    .sort-indicator {
+      margin-left: 5px;
+    }
+    .report-header {
+      margin-bottom: 20px;
+    }
+    .report-metadata {
+      color: #666;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    .line-link {
+      color: #447e9b;
+      text-decoration: none;
+    }
+    .line-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="report-header">
+    <!-- <h1>Line Completion Report</h1> -->
+    <div class="report-metadata">
+      Generated on: {% now "F j, Y, g:i a" %}<br>
+      Total lines: {{ report_data|length }}
+    </div>
+  </div>
+
+  <p>This report shows when each line was last completed, partially completed, and how many times it's been completed.</p>
+  <p>Click on any column header to sort by that column. Click on a line name to view its details.</p>
+
+  <table class="completion-report">
+    <thead>
+      <tr>
+        <th onclick="sortReport('line_name')">
+          Line {% if sort_by == 'line_name' %}<span class="sort-indicator">{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
+        </th>
+        <th>Type</th>
+        <th onclick="sortReport('last_completed')">
+          Last Completed {% if sort_by == 'last_completed' %}<span class="sort-indicator">{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
+        </th>
+        <th onclick="sortReport('completed_count')">
+          Completed Count {% if sort_by == 'completed_count' %}<span class="sort-indicator">{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
+        </th>
+        <th onclick="sortReport('last_partial')">
+          Last Partial {% if sort_by == 'last_partial' %}<span class="sort-indicator">{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
+        </th>
+        <th onclick="sortReport('partial_count')">
+          Partial Count {% if sort_by == 'partial_count' %}<span class="sort-indicator">{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in report_data %}
+        <tr>
+          <td>
+            <a href="{{ item.line_admin_url }}" class="line-link" title="View line details">
+              {{ item.line.name }}
+            </a>
+          </td>
+          <td>{{ item.line.get_line_type_display }}</td>
+          <td>
+            {% if item.last_completed %}
+              {{ item.last_completed }}
+            {% else %}
+              <span class="never">Never</span>
+            {% endif %}
+          </td>
+          <td>{{ item.completed_count }}</td>
+          <td>
+            {% if item.last_partial %}
+              {{ item.last_partial }}
+            {% else %}
+              <span class="never">Never</span>
+            {% endif %}
+          </td>
+          <td>{{ item.partial_count }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <script>
+    function sortReport(sortBy) {
+      const urlParams = new URLSearchParams(window.location.search);
+      let currentSort = urlParams.get('sort') || 'last_completed';
+      let currentOrder = urlParams.get('order') || 'desc';
+
+      // Toggle order if clicking the same column
+      if (currentSort === sortBy) {
+        currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+      } else {
+        // Default to descending for new column
+        currentOrder = 'desc';
+      }
+
+      // Update URL parameters
+      urlParams.set('sort', sortBy);
+      urlParams.set('order', currentOrder);
+
+      // Reload page with new parameters
+      window.location.search = urlParams.toString();
+    }
+  </script>
+{% endblock %}
