@@ -10,6 +10,10 @@ from django import forms
 from django.db.models import Count, Q
 from worktracking.models import Line, Outing, TeamMember, Issue, CompletionStatus, CompletionReport
 
+admin.site.site_header = "Transect Admin"  # Main header text
+admin.site.site_title = "Transect Admin"    # Browser tab title
+admin.site.index_title = "Transect Admin"  # Dashboard subtitle
+
 # Create custom forms with sized inputs
 class LineForm(forms.ModelForm):
     class Meta:
