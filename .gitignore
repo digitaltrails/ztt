@@ -1,1 +1,2 @@
-/transects-django/db.sqlite3
+/source/db.sqlite3
+/source/.env

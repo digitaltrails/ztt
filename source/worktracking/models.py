@@ -24,7 +24,7 @@ class IssueEnum(models.TextChoices):
     SLIGHTLY_ROTTEN = 'SlightlyRotten', 'Slightly Rotten'
     VERY_ROTTEN = 'VeryRotten', 'Very Rotten'
     NEEDS_REPLACING = 'NeedsReplacing', 'Needs Replacing'
-    NEEDS_ROPE = 'NeedsRope', 'NeedsRope'
+    NEEDS_ROPE = 'NeedsRope', 'Needs Rope'
     NEEDS_FREQUENT_ATTN = 'NeedsFrequentAttn', 'Needs Frequent Attention'
     ROPE_ON_DEAD_TREE = 'RopeOnDeadTree', 'Rope On Dead Tree'
     REQUIRES_CHAINSAW = 'RequiresChainsaw', 'Requires Chainsaw'

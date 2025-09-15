@@ -129,6 +129,7 @@ STATIC_URL = 'static/'
 
 # Directory where collectstatic will collect static files for deployment
 # For pythonanywhere.com
+#import os
 #STATIC_ROOT = os.path.join(BASE_DIR / 'static')
 
 # Default primary key field type
