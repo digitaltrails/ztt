@@ -98,20 +98,21 @@ class Outing(models.Model):
 
 class Issue(models.Model):
     issue_status = models.CharField(max_length=20, choices=IssueStatusEnum.choices, default=IssueStatusEnum.NEEDS_WORK)
+    line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name='issues')
+
     start_station_id = models.CharField(max_length=5)
-    issue_type = models.CharField(max_length=20, choices=IssueEnum.choices)
-    station_type = models.CharField(max_length=20, choices=StationType.choices, default=StationType.NA)
     end_station_id = models.CharField(max_length=5, blank=True, null=True)
+    station_type = models.CharField(max_length=20, choices=StationType.choices, default=StationType.NA)
+    issue_type = models.CharField(max_length=20, choices=IssueEnum.choices)
     description = models.TextField(blank=True, null=True)
     photo = models.ImageField(upload_to='issue_photos/', blank=True, null=True)
-    line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name='issues')
     outing = models.ForeignKey(
         Outing,
         on_delete=models.CASCADE,
         related_name='issues',
         null=True,
         blank=True,
-        help_text="The outing during which this issue was found"
+        help_text="The outing during which this issue was found (optional)"
     )
 
     def __str__(self):
