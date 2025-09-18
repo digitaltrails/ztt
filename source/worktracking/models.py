@@ -39,6 +39,8 @@ class IssueStatusEnum(models.TextChoices):
     NEEDS_REPEATING = 'NeedsRepeating', 'Needs Repeating'
 
 class Line(models.Model):
+    class Meta:
+        ordering = ['name'] # Orders by 'name' in ascending order
     name = models.CharField(max_length=100)
     line_type = models.CharField(max_length=20, choices=LineType.choices)
     start_station_id = models.CharField(max_length=5)
