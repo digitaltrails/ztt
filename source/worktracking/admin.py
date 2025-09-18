@@ -235,7 +235,8 @@ class TeamMemberAdmin(admin.ModelAdmin):
 @admin.register(Outing)
 class OutingAdmin(admin.ModelAdmin):
     form = OutingForm
-    list_display = ('date', 'route', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers', 'get_participants')
+    list_display = ('date', 'route', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers',
+                    'get_participants', 'normalized_minutes_per_station')
     list_filter = ('date', 'route', 'completion_status')
     fieldsets = (
         (None, {
@@ -252,6 +253,21 @@ class OutingAdmin(admin.ModelAdmin):
     def get_participants(self, obj):
         return ", ".join([p.name for p in obj.participants.all()])
     get_participants.short_description = 'Team Members'
+
+    def normalized_minutes_per_station(self, obj):
+        # Handle cases where hours is 0 or None
+        try:
+            if not obj.hours or obj.hours == 0 or obj.number_of_workers == 0:
+                return "N/A"
+            num_stns = abs(int(obj.start_station_id) - int(obj.end_station_id))
+            minutes_per = (obj.hours * 60 / num_stns)
+            normalized_minutes_per = (obj.hours * 60 / num_stns) * (obj.number_of_workers / 3)
+            return f"{minutes_per:.2f}  [{normalized_minutes_per:.2f}]"  # Round to 2 decimal places
+        except (TypeError, ValueError):
+             return "N/A"
+
+    # Set column header name
+    normalized_minutes_per_station.short_description = 'Mins/Stn [Normalized]'
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('participants')
