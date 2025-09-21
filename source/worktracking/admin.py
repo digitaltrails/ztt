@@ -70,7 +70,6 @@ class LineAdmin(admin.ModelAdmin):
                     'outing_count', 'completed_outings_count', 'issue_count',)
     list_filter = ('line_type',)
     search_fields = ('name', 'start_station_id', 'end_station_id')
-    inlines = [OutingInline, IssueInline]
     readonly_fields = ('outings_list', 'issues_list')
     fieldsets = (
         (None, {
@@ -108,18 +107,27 @@ class LineAdmin(admin.ModelAdmin):
         return "No issues yet"
     issues_list.short_description = 'Issues'
 
-        # Add custom methods for counts
+    # Updated methods to use annotated values
     def issue_count(self, obj):
+        # Use the annotated value if available
+        if hasattr(obj, 'issue_count'):
+            return obj.issue_count
         return obj.issues.count()
     issue_count.short_description = 'Issues'
     issue_count.admin_order_field = 'issue_count'
 
     def outing_count(self, obj):
+        # Use the annotated value if available
+        if hasattr(obj, 'outing_count'):
+            return obj.outing_count
         return obj.outings.count()
     outing_count.short_description = 'Outings'
     outing_count.admin_order_field = 'outing_count'
 
     def completed_outings_count(self, obj):
+        # Use the annotated value if available
+        if hasattr(obj, 'completed_outing_count'):
+            return obj.completed_outing_count
         return obj.outings.filter(completion_status=CompletionStatus.COMPLETED).count()
     completed_outings_count.short_description = 'Completed'
     completed_outings_count.admin_order_field = 'completed_outing_count'
