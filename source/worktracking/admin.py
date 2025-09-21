@@ -138,7 +138,8 @@ class LineAdmin(admin.ModelAdmin):
         queryset = queryset.annotate(
             issue_count=Count('issues'),
             outing_count=Count('outings'),
-            completed_outing_count=Count('outings', filter=Q(outings__completion_status=CompletionStatus.COMPLETED))
+            completed_outing_count=Count('outings', filter=Q(outings__completion_status=CompletionStatus.COMPLETED),
+                                         distinct=True)
         )
         return queryset
 
