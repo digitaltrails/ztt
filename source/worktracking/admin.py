@@ -49,7 +49,7 @@ class OutingInline(admin.TabularInline):
     can_add = False
     can_delete = False
     show_change_link = True
-    fields = ('date', 'completion_status', 'hours', 'number_of_workers')
+    fields = ('date', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers')
     readonly_fields = fields
     verbose_name = "Outing"
     verbose_name_plural = "Outings"
@@ -58,7 +58,7 @@ class IssueInline(admin.TabularInline):
     model = Issue
     form = IssueForm
     extra = 0
-    fields = ('issue_status', 'start_station_id', 'issue_type', 'station_type', 'end_station_id', 'description', 'photo')
+    fields = ('issue_status', 'start_station_id', 'end_station_id', 'issue_type', 'station_type', 'description', 'photo')
     verbose_name = "Issue"
     verbose_name_plural = "Issues"
 
@@ -292,6 +292,6 @@ class OutingAdmin(admin.ModelAdmin):
 @admin.register(Issue)
 class IssueAdmin(admin.ModelAdmin):
     form = IssueForm
-    list_display = ('line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'description')
+    list_display = ('line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'last_action_date', 'description')
     list_filter = ('issue_status', 'issue_type', 'station_type')
     search_fields = ('start_station_id', 'description')
