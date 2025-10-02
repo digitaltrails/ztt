@@ -7,13 +7,13 @@ class CompletionStatus(models.TextChoices):
 
 class LineType(models.TextChoices):
     TRANSECT = 'Transect', 'Transect'
-    MOUSELINE = 'MouseLine', 'MouseLine'
+    MOUSELINE = 'MouseLine', 'Mouse-Line'
 
 class StationType(models.TextChoices):
-    NOVACOIL = 'NovaCoil', 'NovaCoil'
-    NOVACOIL_BOXED = 'NovaCoilBoxed', 'NovaCoilBoxed'
-    WOODEN_BOX = 'WoodenBox', 'WoodenBox'
-    WEIRD_BOX = 'WeirdBox', 'WeirdBox'
+    NOVACOIL = 'Novacoil', 'Novacoil'
+    NOVACOIL_BOXED = 'NovacoilBoxed', 'Novacoil-Boxed'
+    WOODEN_BOX = 'WoodenBox', 'Wooden-Box'
+    WEIRD_BOX = 'WeirdBox', 'Weird-Box'
     NA = 'NA', 'N/A'
 
 class IssueEnum(models.TextChoices):
@@ -23,6 +23,7 @@ class IssueEnum(models.TextChoices):
     MISSING_WIRE = 'MissingWire', 'Missing Wire'
     SLIGHTLY_ROTTEN = 'SlightlyRotten', 'Slightly Rotten'
     VERY_ROTTEN = 'VeryRotten', 'Very Rotten'
+    NEEDS_CLEARING = 'NeedsClearing', 'Needs Clearing'
     NEEDS_REPLACING = 'NeedsReplacing', 'Needs Replacing'
     NEEDS_ROPE = 'NeedsRope', 'Needs Rope'
     NEEDS_FREQUENT_ATTN = 'NeedsFrequentAttn', 'Needs Frequent Attention'
@@ -37,6 +38,7 @@ class IssueStatusEnum(models.TextChoices):
     NEEDS_WORK = 'NeedsWork', 'Needs Work'
     PROGRESSING = 'Progressing', 'Progressing'
     NEEDS_REPEATING = 'NeedsRepeating', 'Needs Repeating'
+    NOTICE = 'Notice', 'Notice (no action req.)'
 
 class Line(models.Model):
     class Meta:
