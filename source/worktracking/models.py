@@ -32,6 +32,9 @@ class IssueEnum(models.TextChoices):
     FLORA = 'Flora', 'Flora'
     FAUNA = 'Fauna', 'Fauna'
     WEED = 'Weed', 'Weed'
+    SAFETY = 'Safety', 'Safety'
+    NOTE = 'Note', 'Note'
+
 
 class IssueStatusEnum(models.TextChoices):
     FIXED = 'Fixed', 'Fixed'
@@ -39,6 +42,7 @@ class IssueStatusEnum(models.TextChoices):
     PROGRESSING = 'Progressing', 'Progressing'
     NEEDS_REPEATING = 'NeedsRepeating', 'Needs Repeating'
     NOTICE = 'Notice', 'Notice (no action req.)'
+    NO_ACTION_REQ = 'NoActionReq', 'No action req.'
 
 class Line(models.Model):
     class Meta:
