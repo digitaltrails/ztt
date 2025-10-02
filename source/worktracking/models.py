@@ -29,10 +29,10 @@ class IssueEnum(models.TextChoices):
     NEEDS_FREQUENT_ATTN = 'NeedsFrequentAttn', 'Needs Frequent Attention'
     ROPE_ON_DEAD_TREE = 'RopeOnDeadTree', 'Rope On Dead Tree'
     REQUIRES_CHAINSAW = 'RequiresChainsaw', 'Requires Chainsaw'
+    SAFETY = 'Safety', 'Safety'
     FLORA = 'Flora', 'Flora'
     FAUNA = 'Fauna', 'Fauna'
     WEED = 'Weed', 'Weed'
-    SAFETY = 'Safety', 'Safety'
     NOTE = 'Note', 'Note'
 
 
@@ -41,7 +41,6 @@ class IssueStatusEnum(models.TextChoices):
     NEEDS_WORK = 'NeedsWork', 'Needs Work'
     PROGRESSING = 'Progressing', 'Progressing'
     NEEDS_REPEATING = 'NeedsRepeating', 'Needs Repeating'
-    NOTICE = 'Notice', 'Notice (no action req.)'
     NO_ACTION_REQ = 'NoActionReq', 'No action req.'
 
 class Line(models.Model):
