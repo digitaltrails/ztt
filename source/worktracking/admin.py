@@ -1,9 +1,10 @@
 import datetime
+import csv
 from django.contrib import admin
 from django.db.models import Max
 from django.urls import path
 from django.shortcuts import render
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.utils.html import format_html
 from django.urls import reverse
 from django import forms
@@ -13,6 +14,22 @@ from worktracking.models import Line, Outing, TeamMember, Issue, CompletionStatu
 admin.site.site_header = "Transect Admin"  # Main header text
 admin.site.site_title = "Transect Admin"    # Browser tab title
 admin.site.index_title = "Transect Admin"  # Dashboard subtitle
+
+def export_as_csv(modeladmin, request, queryset):
+    meta = modeladmin.model._meta
+    field_names = [field.name for field in meta.fields]
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+    writer = csv.writer(response)
+
+    writer.writerow(field_names)
+    for obj in queryset:
+        writer.writerow([getattr(obj, field) for field in field_names])
+
+    return response
+
+export_as_csv.short_description = "Export selected as CSV"
 
 # Create custom forms with sized inputs
 class LineForm(forms.ModelForm):
@@ -77,6 +94,7 @@ class LineAdmin(admin.ModelAdmin):
             'fields': ('name', 'line_type', 'start_station_id', 'end_station_id')
         }),
     )
+    actions = [export_as_csv]
 
     def get_urls(self):
         urls = super().get_urls()
@@ -240,7 +258,7 @@ class CompletionReportAdmin(admin.ModelAdmin):
 class TeamMemberAdmin(admin.ModelAdmin):
     list_display = ('name', 'email_address')
     search_fields = ('name', 'email_address')
-
+    actions = [export_as_csv]
 
 @admin.register(Outing)
 class OutingAdmin(admin.ModelAdmin):
@@ -259,6 +277,7 @@ class OutingAdmin(admin.ModelAdmin):
     )
     filter_horizontal = ('participants',)
     inlines = [IssueInline]
+    actions = [export_as_csv]
 
     def get_participants(self, obj):
         return ", ".join([p.name for p in obj.participants.all()])
@@ -296,3 +315,4 @@ class IssueAdmin(admin.ModelAdmin):
     list_display = ('line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'last_action_date', 'description')
     list_filter = ('issue_status', 'issue_type', 'station_type')
     search_fields = ('start_station_id', 'description')
+    actions = [export_as_csv]
