@@ -10,7 +10,7 @@ from django.urls import reverse
 from django import forms
 from django.db.models import Count, Q
 from import_export import resources
-from import_export.admin import ImportExportModelAdmin, ExportMixin
+from import_export.admin import ImportExportModelAdmin
 from worktracking.models import Line, Outing, TeamMember, Issue, CompletionStatus, CompletionReport
 from django.utils.safestring import mark_safe
 
@@ -83,7 +83,10 @@ class IssueInline(admin.TabularInline):
     verbose_name_plural = "Issues"
 
 @admin.register(Line)
-class LineAdmin(ExportMixin, admin.ModelAdmin):
+class LineAdmin(ImportExportModelAdmin):
+    def has_import_permission(self, request):
+        return request.user.is_superuser
+
     form = LineForm
     inlines = [OutingInline, IssueInline]
     list_display = ('name', 'line_type', 'start_station_id', 'end_station_id',
@@ -256,12 +259,20 @@ class CompletionReportAdmin(admin.ModelAdmin):
         return request.user.has_perm('worktracking.view_line')
 
 @admin.register(TeamMember)
-class TeamMemberAdmin(ExportMixin, admin.ModelAdmin):
+class TeamMemberAdmin(ImportExportModelAdmin):
+
+    def has_import_permission(self, request):
+        return request.user.is_superuser
+
     list_display = ('name', 'available', 'email_address')
     search_fields = ('name', 'available', 'email_address')
 
 @admin.register(Outing)
 class OutingAdmin(ImportExportModelAdmin):
+
+    def has_import_permission(self, request):
+        return request.user.is_superuser
+
     form = OutingForm
     list_display = ('date', 'route', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers',
                     'get_participants', 'normalized_minutes_per_station')
@@ -312,6 +323,10 @@ class IssueResource(resources.ModelResource):
 
 @admin.register(Issue)
 class IssueAdmin(ImportExportModelAdmin):
+
+    def has_import_permission(self, request):
+        return request.user.is_superuser
+
     form = IssueForm
     resource_class = IssueResource
     list_display = ('line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'last_action_date', 'description')
