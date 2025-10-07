@@ -21,7 +21,6 @@ class IssueEnum(models.TextChoices):
     MISSING_STATION = 'MissingStation', 'Missing Station'
     MISSING_HOOP = 'MissingHoop', 'Missing Hoop'
     MISSING_LID = 'MissingLid', 'Missing Lid'
-    MISSING_WIRE = 'MissingWire', 'Missing Wire'
     MISSING_MESH = 'MissingMesh', 'Missing Mesh'
     NEEDS_PLASTIC_TUB = 'NeedsPlasticTub', 'Needs a Plastic Tub'
     NEEDS_REPLACING = 'NeedsReplacing', 'Needs Replacing'
