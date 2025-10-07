@@ -9,27 +9,12 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django import forms
 from django.db.models import Count, Q
+from import_export.admin import ImportExportModelAdmin, ExportMixin
 from worktracking.models import Line, Outing, TeamMember, Issue, CompletionStatus, CompletionReport
 
 admin.site.site_header = "Transect Admin"  # Main header text
 admin.site.site_title = "Transect Admin"    # Browser tab title
 admin.site.index_title = "Transect Admin"  # Dashboard subtitle
-
-def export_as_csv(modeladmin, request, queryset):
-    meta = modeladmin.model._meta
-    field_names = [field.name for field in meta.fields]
-
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
-    writer = csv.writer(response)
-
-    writer.writerow(field_names)
-    for obj in queryset:
-        writer.writerow([getattr(obj, field) for field in field_names])
-
-    return response
-
-export_as_csv.short_description = "Export selected as CSV"
 
 # Create custom forms with sized inputs
 class LineForm(forms.ModelForm):
@@ -81,7 +66,7 @@ class IssueInline(admin.TabularInline):
     verbose_name_plural = "Issues"
 
 @admin.register(Line)
-class LineAdmin(admin.ModelAdmin):
+class LineAdmin(ExportMixin, admin.ModelAdmin):
     form = LineForm
     inlines = [OutingInline, IssueInline]
     list_display = ('name', 'line_type', 'start_station_id', 'end_station_id',
@@ -94,7 +79,6 @@ class LineAdmin(admin.ModelAdmin):
             'fields': ('name', 'line_type', 'start_station_id', 'end_station_id')
         }),
     )
-    actions = [export_as_csv]
 
     def get_urls(self):
         urls = super().get_urls()
@@ -255,13 +239,12 @@ class CompletionReportAdmin(admin.ModelAdmin):
         return request.user.has_perm('worktracking.view_line')
 
 @admin.register(TeamMember)
-class TeamMemberAdmin(admin.ModelAdmin):
+class TeamMemberAdmin(ExportMixin, admin.ModelAdmin):
     list_display = ('name', 'email_address')
     search_fields = ('name', 'email_address')
-    actions = [export_as_csv]
 
 @admin.register(Outing)
-class OutingAdmin(admin.ModelAdmin):
+class OutingAdmin(ExportMixin, admin.ModelAdmin):
     form = OutingForm
     list_display = ('date', 'route', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers',
                     'get_participants', 'normalized_minutes_per_station')
@@ -277,7 +260,6 @@ class OutingAdmin(admin.ModelAdmin):
     )
     filter_horizontal = ('participants',)
     inlines = [IssueInline]
-    actions = [export_as_csv]
 
     def get_participants(self, obj):
         return ", ".join([p.name for p in obj.participants.all()])
@@ -310,9 +292,8 @@ class OutingAdmin(admin.ModelAdmin):
         formset.save_m2m()
 
 @admin.register(Issue)
-class IssueAdmin(admin.ModelAdmin):
+class IssueAdmin(ImportExportModelAdmin):
     form = IssueForm
     list_display = ('line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'last_action_date', 'description')
     list_filter = ('issue_status', 'issue_type', 'station_type')
     search_fields = ('start_station_id', 'description')
-    actions = [export_as_csv]
