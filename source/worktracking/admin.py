@@ -9,6 +9,7 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django import forms
 from django.db.models import Count, Q
+from import_export import resources
 from import_export.admin import ImportExportModelAdmin, ExportMixin
 from worktracking.models import Line, Outing, TeamMember, Issue, CompletionStatus, CompletionReport
 
@@ -291,9 +292,17 @@ class OutingAdmin(ExportMixin, admin.ModelAdmin):
             instance.save()
         formset.save_m2m()
 
+class IssueResource(resources.ModelResource):
+    class Meta:
+        model = Issue
+        fields = ('line', 'issue_status', 'start_station_id', 'end_station_id',
+                  'station_type', 'outing', 'issue_type', 'outing', 'origin', 'last_action_date', 'description')
+
 @admin.register(Issue)
 class IssueAdmin(ImportExportModelAdmin):
     form = IssueForm
+    resource_class = IssueResource
     list_display = ('line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'last_action_date', 'description')
     list_filter = ('issue_status', 'issue_type', 'station_type')
     search_fields = ('start_station_id', 'description')
+
