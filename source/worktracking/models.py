@@ -57,8 +57,9 @@ class Line(models.Model):
         return f"{self.name} ({self.get_line_type_display()})"
 
 class TeamMember(models.Model):
-    name = models.CharField(max_length=100)
-    email_address = models.EmailField()
+    name = models.CharField(max_length=15)
+    email_address = models.EmailField(blank=True)
+    available = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

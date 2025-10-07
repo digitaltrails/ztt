@@ -22,5 +22,5 @@ admin.site_title = "Transect Team Admin"   # Browser tab title
 admin.site.index_title = "Site Administration"  # Subtitle on the admin index page
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('transects/', admin.site.urls),
 ]

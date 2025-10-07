@@ -12,10 +12,25 @@ from django.db.models import Count, Q
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin, ExportMixin
 from worktracking.models import Line, Outing, TeamMember, Issue, CompletionStatus, CompletionReport
+from django.utils.safestring import mark_safe
 
 admin.site.site_header = "Transect Admin"  # Main header text
 admin.site.site_title = "Transect Admin"    # Browser tab title
 admin.site.index_title = "Transect Admin"  # Dashboard subtitle
+from django.forms import CheckboxSelectMultiple
+
+
+class HorizontalCheckboxSelectMultiple(CheckboxSelectMultiple):
+    template_name = 'forms/widgets/horizontal_checkbox_select.html'
+
+    def __init__(self, columns=3, *args, **kwargs):
+        self.columns = columns
+        super().__init__(*args, **kwargs)
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget']['columns'] = self.columns
+        return context
 
 # Create custom forms with sized inputs
 class LineForm(forms.ModelForm):
@@ -34,6 +49,7 @@ class OutingForm(forms.ModelForm):
         widgets = {
             'start_station_id': forms.TextInput(attrs={'size': 5}),
             'end_station_id': forms.TextInput(attrs={'size': 5}),
+            'participants': HorizontalCheckboxSelectMultiple(),
         }
 
 class IssueForm(forms.ModelForm):
@@ -241,22 +257,18 @@ class CompletionReportAdmin(admin.ModelAdmin):
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(ExportMixin, admin.ModelAdmin):
-    list_display = ('name', 'email_address')
-    search_fields = ('name', 'email_address')
+    list_display = ('name', 'available', 'email_address')
+    search_fields = ('name', 'available', 'email_address')
 
 @admin.register(Outing)
-class OutingAdmin(ExportMixin, admin.ModelAdmin):
+class OutingAdmin(ImportExportModelAdmin):
     form = OutingForm
     list_display = ('date', 'route', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers',
                     'get_participants', 'normalized_minutes_per_station')
     list_filter = ('date', 'route', 'completion_status')
     fieldsets = (
         (None, {
-            'fields': ('date', 'route', 'completion_status', 'hours', 'number_of_workers', 'start_station_id', 'end_station_id')
-        }),
-        ('Participants', {
-            'classes': ('collapse',),  # This fieldset will be collapsed by default
-            'fields': ('participants',),
+            'fields': ('date', 'route', 'completion_status', 'hours', 'number_of_workers', 'start_station_id', 'end_station_id', 'participants')
         }),
     )
     filter_horizontal = ('participants',)
@@ -295,7 +307,7 @@ class OutingAdmin(ExportMixin, admin.ModelAdmin):
 class IssueResource(resources.ModelResource):
     class Meta:
         model = Issue
-        fields = ('line', 'issue_status', 'start_station_id', 'end_station_id',
+        fields = ('id', 'line', 'issue_status', 'start_station_id', 'end_station_id',
                   'station_type', 'outing', 'issue_type', 'outing', 'origin', 'last_action_date', 'description')
 
 @admin.register(Issue)

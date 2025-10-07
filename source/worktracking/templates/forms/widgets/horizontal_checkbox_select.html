@@ -1,0 +1,29 @@
+<style>
+.checkbox-grid {
+    display: grid !important;
+    gap: 15px !important;
+    margin: 10px 0 !important;
+}
+
+.checkbox-item {
+    display: flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-right: 8px !important;
+    margin-top: 0 !important;
+}
+</style>
+
+<div class="checkbox-grid" style="grid-template-columns: repeat({{ widget.columns }}, 1fr) !important;">
+    {% for group, options, index in widget.optgroups %}
+        {% for option in options %}
+            <div class="checkbox-item">
+                {% include "django/forms/widgets/input.html" with widget=option %}
+                <label for="{{ option.attrs.id }}">{{ option.label }}</label>
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>
