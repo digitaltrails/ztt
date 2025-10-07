@@ -22,7 +22,7 @@ class IssueEnum(models.TextChoices):
     MISSING_HOOP = 'MissingHoop', 'Missing Hoop'
     MISSING_LID = 'MissingLid', 'Missing Lid'
     MISSING_MESH = 'MissingMesh', 'Missing Mesh'
-    NEEDS_PLASTIC_TUB = 'NeedsPlasticTub', 'Needs a Plastic Tub'
+    NEEDS_New_ICC = 'Needs_New_ICC', 'Needs new ICC'
     NEEDS_REPLACING = 'NeedsReplacing', 'Needs Replacing'
     SLIGHTLY_ROTTEN = 'SlightlyRotten', 'Slightly Rotten'
     VERY_ROTTEN = 'VeryRotten', 'Very Rotten'

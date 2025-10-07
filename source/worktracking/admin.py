@@ -40,6 +40,7 @@ class IssueForm(forms.ModelForm):
         widgets = {
             'start_station_id': forms.TextInput(attrs={'size': 5}),
             'end_station_id': forms.TextInput(attrs={'size': 5}),
+            'description': forms.Textarea(attrs={'rows': 3, 'cols': 55}),
         }
 
 class OutingInline(admin.TabularInline):
