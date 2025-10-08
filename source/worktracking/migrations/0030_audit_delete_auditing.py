@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-
+        ('worktracking', '0027_alter_teammember_options_and_more'),
     ]
 
     operations = [
