@@ -1,5 +1,8 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.db import models
+from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
+from django.dispatch import receiver
 
 class CompletionStatus(models.TextChoices):
     COMPLETED = 'Completed', 'Completed'
@@ -37,13 +40,17 @@ class IssueEnum(models.TextChoices):
     WEED = 'Weed', 'Weed'
     NOTE = 'Note', 'Note'
 
-
 class IssueStatusEnum(models.TextChoices):
     FIXED = 'Fixed', 'Fixed'
     NEEDS_WORK = 'NeedsWork', 'Needs Work'
     PROGRESSING = 'Progressing', 'Progressing'
     NEEDS_REPEATING = 'NeedsRepeating', 'Needs Repeating'
     NO_ACTION_REQ = 'NoActionReq', 'No action req.'
+
+class AuditActionEnum(models.TextChoices):
+    LOGIN = 'Login', 'Login'
+    LOGOUT = 'Logout', 'Logout'
+    LOGIN_FAILED = 'LoginFailed', 'Login Failed'
 
 class Line(models.Model):
     class Meta:
@@ -140,3 +147,29 @@ class CompletionReport(Line):
         proxy = True
         verbose_name = "Completion Report"
         verbose_name_plural = "Completion Report"
+
+class Audit(models.Model):
+    action = models.CharField(max_length=20, choices=AuditActionEnum.choices)
+    ip = models.GenericIPAddressField(null=True)
+    username = models.CharField(max_length=256, null=True)
+    when = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "User Login Activity"
+        verbose_name_plural = "User Login Activities"
+
+@receiver(user_logged_in)
+def user_logged_in_callback(sender, request, user, **kwargs):
+    ip = request.META.get('REMOTE_ADDR')
+    Audit.objects.create(action=AuditActionEnum.LOGIN, ip=ip, username=user.username)
+
+@receiver(user_logged_out)
+def user_logged_out_callback(sender, request, user, **kwargs):
+    ip = request.META.get('REMOTE_ADDR')
+    Audit.objects.create(action=AuditActionEnum.LOGOUT, ip=ip, username=user.username)
+
+@receiver(user_login_failed)
+def user_login_failed_callback(sender, request, credentials, **kwargs):
+    ip = request.META.get('REMOTE_ADDR')
+    username = credentials.get('username', None)
+    Audit.objects.create(action=AuditActionEnum.LOGIN_FAILED, ip=ip, username=username)

@@ -10,9 +10,8 @@ from django.urls import reverse
 from django import forms
 from django.db.models import Count, Q
 from import_export import resources
-from import_export.admin import ImportExportModelAdmin
-from worktracking.models import Line, Outing, TeamMember, Issue, CompletionStatus, CompletionReport
-from django.utils.safestring import mark_safe
+from import_export.admin import ImportExportModelAdmin, ExportActionMixin
+from worktracking.models import Line, Outing, TeamMember, Issue, CompletionStatus, CompletionReport, Audit
 
 admin.site.site_header = "Transect Admin"  # Main header text
 admin.site.site_title = "Transect Admin"    # Browser tab title
@@ -334,3 +333,17 @@ class IssueAdmin(ImportExportModelAdmin):
     list_filter = ('issue_status', 'issue_type', 'station_type')
     search_fields = ('start_station_id', 'description')
 
+@admin.register(Audit)
+class AuditAdmin(ExportActionMixin, admin.ModelAdmin):
+    list_display = ('when', 'action', 'username', 'ip',)
+    list_filter = ('action', )
+    readonly_fields = ('when',)
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
