@@ -83,6 +83,12 @@
         <th onclick="sortReport('partial_count')">
           Partial Count {% if sort_by == 'partial_count' %}<span class="sort-indicator">{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
         </th>
+        <th onclick="sortReport('issues_unresolved_count')">
+          Unresolved Issues {% if sort_by == 'issues_unresolved_count' %}<span class="sort-indicator">{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
+        </th>
+        <th onclick="sortReport('issues_count')">
+          Total Issues {% if sort_by == 'issues_count' %}<span class="sort-indicator">{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -110,6 +116,20 @@
             {% endif %}
           </td>
           <td>{{ item.partial_count }}</td>
+          <td>
+            {% if item.issues_unresolved_count %}
+              {{ item.issues_unresolved_count }}
+            {% else %}
+              <span class="never">None</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if item.issues_count %}
+              {{ item.issues_count }}
+            {% else %}
+              <span class="never">None</span>
+            {% endif %}
+          </td>
         </tr>
       {% endfor %}
     </tbody>

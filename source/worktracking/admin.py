@@ -11,7 +11,7 @@ from django import forms
 from django.db.models import Count, Q
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin, ExportActionMixin
-from worktracking.models import Line, Outing, TeamMember, Issue, CompletionStatus, CompletionReport, Audit
+from worktracking.models import Line, Outing, TeamMember, Issue, CompletionStatus, CompletionReport, Audit, IssueStatusEnum
 
 admin.site.site_header = "Transect Admin"  # Main header text
 admin.site.site_title = "Transect Admin"    # Browser tab title
@@ -185,6 +185,10 @@ class LineAdmin(ImportExportModelAdmin):
             last_partial = partial_outings.aggregate(Max('date'))['date__max']
             partial_count = partial_outings.count()
 
+            # get issues that need work
+            issues_count = line.issues.count()
+            issues_unresolved_count = line.issues.exclude(issue_status=IssueStatusEnum.FIXED).exclude(issue_status=IssueStatusEnum.NO_ACTION_REQ).count()
+
             # Generate admin URL for this line
             line_admin_url = reverse('admin:worktracking_line_change', args=[line.id])
 
@@ -195,6 +199,8 @@ class LineAdmin(ImportExportModelAdmin):
                 'completed_count': completed_count,
                 'last_partial': last_partial,
                 'partial_count': partial_count,
+                'issues_unresolved_count': issues_unresolved_count,
+                'issues_count': issues_count,
             })
 
         # Define sorting functions
@@ -210,6 +216,12 @@ class LineAdmin(ImportExportModelAdmin):
         def sort_key_partial_count(x):
             return x['partial_count']
 
+        def sort_key_issues_count(x):
+            return x['issues_count']
+
+        def sort_key_issues_unresolved_count(x):
+            return x['issues_unresolved_count']
+
         def sort_key_line_name(x):
             return x['line'].name
 
@@ -220,6 +232,8 @@ class LineAdmin(ImportExportModelAdmin):
             'completed_count': sort_key_completed_count,
             'partial_count': sort_key_partial_count,
             'line_name': sort_key_line_name,
+            'issues_unresolved_count': sort_key_issues_unresolved_count,
+            'issues_count': sort_key_issues_count,
         }
 
         if sort_by in sort_functions:
