@@ -20,6 +20,7 @@ from django.urls import path, include
 admin.site_header = "Transect Team Admin"  # Main header text
 admin.site_title = "Transect Team Admin"   # Browser tab title
 admin.site.index_title = "Site Administration"  # Subtitle on the admin index page
+admin.site.site_url = ''
 
 urlpatterns = [
     path('transects/', admin.site.urls),
