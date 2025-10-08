@@ -264,9 +264,9 @@ class TeamMemberAdmin(ImportExportModelAdmin):
     def has_import_permission(self, request):
         return request.user.is_superuser
 
-    list_display = ('name', 'available', 'email_address')
+    list_display = ('name', 'available')
     list_filter = ('available',)
-    search_fields = ('name', 'available', 'email_address')
+    search_fields = ('name', 'available')
 
 @admin.register(Outing)
 class OutingAdmin(ImportExportModelAdmin):

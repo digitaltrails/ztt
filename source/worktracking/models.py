@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator
 
 class CompletionStatus(models.TextChoices):
     COMPLETED = 'Completed', 'Completed'
@@ -58,11 +58,10 @@ class Line(models.Model):
 
 class TeamMember(models.Model):
     name = models.CharField(max_length=15)
-    email_address = models.EmailField(blank=True)
     available = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.name
+        return self.name if self.available else f'[{self.name}]'
 
     class Meta:
         ordering = ['-available', 'name']
