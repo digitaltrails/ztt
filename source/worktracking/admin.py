@@ -49,7 +49,7 @@ class OutingForm(forms.ModelForm):
         widgets = {
             'start_station_id': forms.TextInput(attrs={'size': 5}),
             'end_station_id': forms.TextInput(attrs={'size': 5}),
-            'participants': HorizontalCheckboxSelectMultiple(),
+            'participants': HorizontalCheckboxSelectMultiple(columns=4),
         }
 
 class IssueForm(forms.ModelForm):
@@ -265,6 +265,7 @@ class TeamMemberAdmin(ImportExportModelAdmin):
         return request.user.is_superuser
 
     list_display = ('name', 'available', 'email_address')
+    list_filter = ('available',)
     search_fields = ('name', 'available', 'email_address')
 
 @admin.register(Outing)
@@ -276,7 +277,7 @@ class OutingAdmin(ImportExportModelAdmin):
     form = OutingForm
     list_display = ('date', 'route', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers',
                     'get_participants', 'normalized_minutes_per_station')
-    list_filter = ('date', 'route', 'completion_status')
+    list_filter = ('completion_status', 'date', 'participants', 'route',)
     fieldsets = (
         (None, {
             'fields': ('date', 'route', 'completion_status', 'hours', 'number_of_workers', 'start_station_id', 'end_station_id', 'participants')

@@ -64,6 +64,9 @@ class TeamMember(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ['-available', 'name']
+
 class Outing(models.Model):
     date = models.DateField()
     hours = models.DecimalField(
