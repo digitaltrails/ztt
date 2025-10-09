@@ -49,17 +49,33 @@
     .line-link:hover {
       text-decoration: underline;
     }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
   </style>
 {% endblock %}
 
 {% block content %}
-  <div class="report-header">
-    <!-- <h1>Line Completion Report</h1> -->
-    <div class="report-metadata">
-      Generated on: {% now "F j, Y, g:i a" %}<br>
-      Total lines: {{ report_data|length }}
+    <div class="report-header">
+      <div class="header-content">
+        <div class="report-metadata">
+          <strong>Line Completion Report</strong><br>
+          Generated on: {% now "F j, Y, g:i a" %} |
+          Total lines: {{ report_data|length }}
+        </div>
+        <div class="object-tools">
+          <a href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}format=csv"
+             class="exportlink">
+            Export CSV
+          </a>
+        </div>
+      </div>
     </div>
-  </div>
 
   <p>This report shows when each line was last completed, partially completed, and how many times it's been completed.</p>
   <p>Click on any column header to sort by that column. Click on a line name to view its details.</p>

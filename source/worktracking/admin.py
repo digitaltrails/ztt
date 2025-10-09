@@ -13,6 +13,8 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin, ExportActionMixin
 from worktracking.models import Line, Outing, TeamMember, Issue, CompletionStatus, CompletionReport, Audit, IssueStatusEnum
 
+from worktracking.resources import LineCompletionResource
+
 admin.site.site_header = "Transect Admin"  # Main header text
 admin.site.site_title = "Transect Admin"    # Browser tab title
 admin.site.index_title = "Transect Admin"  # Dashboard subtitle
@@ -192,38 +194,46 @@ class LineAdmin(ImportExportModelAdmin):
             # Generate admin URL for this line
             line_admin_url = reverse('admin:worktracking_line_change', args=[line.id])
 
-            report_data.append({
-                'line': line,
-                'line_admin_url': line_admin_url,  # Add the admin URL
-                'last_completed': last_completed,
-                'completed_count': completed_count,
-                'last_partial': last_partial,
-                'partial_count': partial_count,
-                'issues_unresolved_count': issues_unresolved_count,
-                'issues_count': issues_count,
-            })
+            resource = LineCompletionResource()
+            resource.line = line
+            resource.line_name = line.name
+            resource.line_admin_url = line_admin_url
+            resource.line_type = line.line_type
+            resource.last_partial = last_partial
+            resource.last_completed = last_completed
+            resource.completed_count = completed_count
+            resource.partial_count = partial_count
+            resource.issues_unresolved_count = issues_unresolved_count
+            resource.issues_count = issues_count
+            report_data.append(resource)
+
+        if request.GET.get('format') == 'csv':
+            dataset = LineCompletionResource().export(report_data)
+            response = HttpResponse(dataset.csv, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="line_completion_report.csv"'
+            return response
 
         # Define sorting functions
         def sort_key_last_completed(x):
-            return x['last_completed'] or datetime.date.min
+            return x.last_completed or datetime.date.min
 
         def sort_key_last_partial(x):
-            return x['last_partial'] or datetime.date.min
+            return x.last_partial or datetime.date.min
 
         def sort_key_completed_count(x):
-            return x['completed_count']
+            return x.completed_count
 
         def sort_key_partial_count(x):
-            return x['partial_count']
+            return x.partial_count
 
         def sort_key_issues_count(x):
-            return x['issues_count']
+            return x.issues_count
 
         def sort_key_issues_unresolved_count(x):
-            return x['issues_unresolved_count']
+            return x.issues_unresolved_count
 
         def sort_key_line_name(x):
-            return x['line'].name
+            return x.line_name
 
         # Apply sorting based on parameters
         sort_functions = {
