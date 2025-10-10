@@ -25,10 +25,11 @@ class IssueEnum(models.TextChoices):
     MISSING_HOOP = 'MissingHoop', 'Missing Hoop'
     MISSING_LID = 'MissingLid', 'Missing Lid'
     MISSING_MESH = 'MissingMesh', 'Missing Mesh'
-    NEEDS_New_ICC = 'Needs_New_ICC', 'Needs new ICC'
+    NEEDS_NEW_ICC = 'Needs_New_ICC', 'Needs new ICC'
     NEEDS_REPLACING = 'NeedsReplacing', 'Needs Replacing'
     SLIGHTLY_ROTTEN = 'SlightlyRotten', 'Slightly Rotten'
     VERY_ROTTEN = 'VeryRotten', 'Very Rotten'
+    RUSTING_HOOP = 'RustingHoop', 'Rusting Hoop'
     NEEDS_CLEARING = 'NeedsClearing', 'Needs Clearing'
     NEEDS_ROPE = 'NeedsRope', 'Needs Rope'
     NEEDS_FREQUENT_ATTN = 'NeedsFrequentAttn', 'Needs Frequent Attention'
@@ -124,7 +125,8 @@ class Issue(models.Model):
     end_station_id = models.CharField(max_length=5, blank=True, null=True)
     station_type = models.CharField(max_length=20, choices=StationType.choices, default=StationType.NA)
     issue_type = models.CharField(max_length=20, choices=IssueEnum.choices)
-    origin = models.CharField(max_length=20, blank=True, null=True)
+    origin = models.CharField(max_length=10, blank=True, null=True)
+    reported_by = models.CharField(max_length=10, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     photo = models.ImageField(upload_to='issue_photos/', blank=True, null=True)
     outing = models.ForeignKey(

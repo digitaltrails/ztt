@@ -354,8 +354,8 @@ class IssueAdmin(ImportExportModelAdmin):
     form = IssueForm
     resource_class = IssueResource
     list_display = ('line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'last_action_date', 'description')
-    list_filter = ('issue_status', 'issue_type', 'station_type')
-    search_fields = ('start_station_id', 'description')
+    list_filter = ('issue_status', 'issue_type', 'station_type', 'origin', 'reported_by')
+    search_fields = ('start_station_id', 'description', 'origin', 'reported_by')
 
 @admin.register(Audit)
 class AuditAdmin(ExportActionMixin, admin.ModelAdmin):
