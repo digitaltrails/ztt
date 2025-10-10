@@ -79,6 +79,7 @@ class IssueInline(admin.TabularInline):
     model = Issue
     form = IssueForm
     extra = 0
+    show_change_link = True
     fields = ('issue_status', 'start_station_id', 'end_station_id', 'issue_type', 'station_type', 'description', 'photo')
     verbose_name = "Issue"
     verbose_name_plural = "Issues"
