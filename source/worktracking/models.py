@@ -118,7 +118,6 @@ class Outing(models.Model):
 
 class Issue(models.Model):
     issue_status = models.CharField(max_length=20, choices=IssueStatusEnum.choices, default=IssueStatusEnum.NEEDS_WORK)
-    last_action_date = models.DateField(null=True, blank=True)
     line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name='issues')
 
     start_station_id = models.CharField(max_length=5)
@@ -129,6 +128,8 @@ class Issue(models.Model):
     reported_by = models.CharField(max_length=10, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     photo = models.ImageField(upload_to='issue_photos/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     outing = models.ForeignKey(
         Outing,
         on_delete=models.CASCADE,

@@ -354,7 +354,7 @@ class IssueResource(resources.ModelResource):
     class Meta:
         model = Issue
         fields = ('id', 'line', 'issue_status', 'start_station_id', 'end_station_id',
-                  'station_type', 'outing', 'issue_type', 'outing', 'origin', 'last_action_date', 'description')
+                  'station_type', 'outing', 'issue_type', 'outing', 'origin', 'created_at', 'description')
 
 @admin.register(Issue)
 class IssueAdmin(ImportExportModelAdmin):
@@ -364,9 +364,10 @@ class IssueAdmin(ImportExportModelAdmin):
 
     form = IssueForm
     resource_class = IssueResource
-    list_display = ('line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'last_action_date', 'description')
+    list_display = ('line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'created_at', 'description')
     list_filter = ('issue_status', 'issue_type', 'station_type', 'origin', 'reported_by')
     search_fields = ('start_station_id', 'description', 'origin', 'reported_by')
+    readonly_fields = ('created_at', 'updated_at')
 
 @admin.register(Audit)
 class AuditAdmin(ExportActionMixin, admin.ModelAdmin):
