@@ -65,6 +65,7 @@ class IssueForm(forms.ModelForm):
 
 class OutingInline(admin.TabularInline):
     model = Outing
+    ordering = ('-date',)
     form = OutingForm
     extra = 0
     can_add = False
@@ -77,6 +78,7 @@ class OutingInline(admin.TabularInline):
 
 class IssueInline(admin.TabularInline):
     model = Issue
+    ordering = ('-issue_status',)
     form = IssueForm
     extra = 0
     show_change_link = True
