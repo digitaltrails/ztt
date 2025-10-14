@@ -92,7 +92,7 @@ class LineAdmin(ImportExportModelAdmin):
     form = LineForm
     inlines = [OutingInline, IssueInline]
     list_display = ('name', 'line_type', 'start_station_id', 'end_station_id',
-                    'outing_count', 'completed_outings_count', 'issue_count',)
+                    'outing_count', 'completed_outings_count', 'unresolved_issue_count',)
     list_filter = ('line_type',)
     search_fields = ('name', 'start_station_id', 'end_station_id')
     readonly_fields = ('outings_list', 'issues_list')
@@ -140,6 +140,14 @@ class LineAdmin(ImportExportModelAdmin):
         return obj.issues.count()
     issue_count.short_description = 'Issues'
     issue_count.admin_order_field = 'issue_count'
+
+    def unresolved_issue_count(self, obj):
+        # Use the annotated value if available
+        if hasattr(obj, 'unresolved_issue_count'):
+            return obj.unresolved_issue_count
+        return obj.issues.exclude(issue_status=IssueStatusEnum.FIXED).exclude(issue_status=IssueStatusEnum.NO_ACTION_REQ).count()
+    unresolved_issue_count.short_description = 'Unresolved issues'
+    unresolved_issue_count.admin_order_field = 'unresolved_issue_count'
 
     def outing_count(self, obj):
         # Use the annotated value if available
