@@ -89,7 +89,7 @@ class IssueInline(admin.TabularInline):
 
     def date_only(self, obj):
         if obj.created_at:
-            return obj.created_at.strftime("%d/%m/%y")  # "10/15/23"
+            return obj.created_at.strftime("%d/%m/%y")
         return "-"
     date_only.short_description = 'Created'
 
@@ -371,10 +371,16 @@ class IssueAdmin(ImportExportModelAdmin):
 
     form = IssueForm
     resource_class = IssueResource
-    list_display = ('line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'created_at', 'description')
+    list_display = ('line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'date_only', 'description')
     list_filter = ('issue_status', 'issue_type', 'station_type', 'origin', 'reported_by')
     search_fields = ('start_station_id', 'description', 'origin', 'reported_by')
     readonly_fields = ('created_at', 'updated_at')
+
+    def date_only(self, obj):
+        if obj.created_at:
+            return obj.created_at.strftime("%d/%m/%y")
+        return "-"
+    date_only.short_description = 'Created'
 
 @admin.register(Audit)
 class AuditAdmin(ExportActionMixin, admin.ModelAdmin):
