@@ -1,0 +1,49 @@
+{% extends "admin/base.html" %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+@media print {
+    /* Hide all admin chrome */
+    #header,
+    .breadcrumbs,
+    .object-tools,
+    .actions,
+    .paginator,
+    #changelist-filter,
+    .submit-row,
+    #user-tools,
+    .addlink,
+    .deletelink {
+        display: none !important;
+    }
+
+    /* Simple black and white */
+    body {
+        color: black !important;
+        background: white !important;
+        font-size: 12px !important;
+    }
+
+    /* Remove backgrounds and colors */
+    * {
+        background: white !important;
+        color: black !important;
+        border-color: black !important;
+    }
+
+    /* Basic table styling */
+    table {
+        border-collapse: collapse !important;
+    }
+
+    th, td {
+        border: 1px solid black !important;
+    }
+
+    th {
+        background: #f0f0f0 !important;
+    }
+}
+</style>
+{% endblock %}
