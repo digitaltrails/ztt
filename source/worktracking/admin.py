@@ -96,7 +96,7 @@ class OutingInline(admin.TabularInline):
 
 class IssueInline(admin.TabularInline):
     model = Issue
-    ordering = ('-issue_status',)
+    ordering = ('-start_station_id',)
     form = IssueForm
     extra = 0
     show_change_link = True
