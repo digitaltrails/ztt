@@ -1,7 +1,8 @@
 import datetime
 import csv
 from django.contrib import admin
-from django.db.models import Max
+from django.db.models import Max, IntegerField
+from django.db.models.functions import Cast
 from django.urls import path
 from django.shortcuts import render
 from django.http import HttpRequest, HttpResponse
@@ -96,9 +97,17 @@ class OutingInline(admin.TabularInline):
 
 class IssueInline(admin.TabularInline):
     model = Issue
-    ordering = ('-start_station_id',)
+
+    def get_queryset(self, request):  # Order text field numerically
+        # Get the base queryset
+        qs = super().get_queryset(request)
+        qs = qs.annotate(
+            numeric_field=Cast('start_station_id', IntegerField())
+        ).order_by('numeric_field')
+        return qs
+
     form = IssueForm
-    extra = 0
+    extra = 1
     show_change_link = True
     fields = ('issue_status', 'start_station_id', 'end_station_id', 'issue_type', 'station_type', 'date_only', 'description', 'reported_by', 'photo')
     readonly_fields = ('date_only',)
