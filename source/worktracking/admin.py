@@ -21,6 +21,24 @@ admin.site.index_title = "Transect Admin"  # Dashboard subtitle
 from django.forms import CheckboxSelectMultiple
 
 
+class CompactModelForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, field in self.fields.items():
+            # Get the model field
+            model_field = self._meta.model._meta.get_field(field_name)
+
+            # If it's a CharField with max_length, set HTML attributes
+            if hasattr(model_field, 'max_length') and model_field.max_length:
+                if isinstance(field.widget, forms.TextInput):
+                    field.widget.attrs.update({
+                        'maxlength': model_field.max_length,
+                        'size': min(model_field.max_length, 50),  # Cap at 50 for very long fields
+                        'style': f'width: {min(model_field.max_length, 50)}ch;'
+                    })
+
 class HorizontalCheckboxSelectMultiple(CheckboxSelectMultiple):
     template_name = 'forms/widgets/horizontal_checkbox_select.html'
 
@@ -34,7 +52,7 @@ class HorizontalCheckboxSelectMultiple(CheckboxSelectMultiple):
         return context
 
 # Create custom forms with sized inputs
-class LineForm(forms.ModelForm):
+class LineForm(CompactModelForm):
     class Meta:
         model = Line
         fields = '__all__'
@@ -43,7 +61,7 @@ class LineForm(forms.ModelForm):
             'end_station_id': forms.TextInput(attrs={'size': 5}),
         }
 
-class OutingForm(forms.ModelForm):
+class OutingForm(CompactModelForm):
     class Meta:
         model = Outing
         fields = '__all__'
@@ -53,7 +71,7 @@ class OutingForm(forms.ModelForm):
             'participants': HorizontalCheckboxSelectMultiple(columns=4),
         }
 
-class IssueForm(forms.ModelForm):
+class IssueForm(CompactModelForm):
     class Meta:
         model = Issue
         fields = '__all__'
@@ -82,7 +100,7 @@ class IssueInline(admin.TabularInline):
     form = IssueForm
     extra = 0
     show_change_link = True
-    fields = ('issue_status', 'start_station_id', 'end_station_id', 'issue_type', 'station_type', 'date_only', 'description', 'photo')
+    fields = ('issue_status', 'start_station_id', 'end_station_id', 'issue_type', 'station_type', 'date_only', 'description', 'reported_by', 'photo')
     readonly_fields = ('date_only',)
     verbose_name = "Issue"
     verbose_name_plural = "Issues"
