@@ -1,48 +1,41 @@
-{% extends "admin/base.html" %}
 
-{% block extrastyle %}
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}
 {{ block.super }}
 <style>
 @media print {
-    /* Hide all admin chrome */
+    /* Hide everything except the main form content */
     #header,
     .breadcrumbs,
-    .object-tools,
-    .actions,
-    .paginator,
-    #changelist-filter,
     .submit-row,
+    .object-tools,
     #user-tools,
-    .addlink,
-    .deletelink {
+    .deletelink-box,
+    .historylink,
+    #nav-sidebar,
+
+    .help {
         display: none !important;
     }
 
-    /* Simple black and white */
-    body {
-        color: black !important;
-        background: white !important;
-        font-size: 12px !important;
+    /* Clean up the form */
+    #content {
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    /* Remove backgrounds and colors */
     * {
+        font-size: 16pt !important;  /* Increased from typical 12px */
+        line-height: 1.6 !important;
+        color: #000 !important;
         background: white !important;
-        color: black !important;
-        border-color: black !important;
     }
 
-    /* Basic table styling */
-    table {
-        border-collapse: collapse !important;
-    }
-
-    th, td {
-        border: 1px solid black !important;
-    }
-
-    th {
-        background: #f0f0f0 !important;
+    /* Make form fields look good in print */
+    .form-row {
+        border-bottom: 1px solid #ccc !important;
+        padding: 8px 0 !important;
     }
 }
 </style>
