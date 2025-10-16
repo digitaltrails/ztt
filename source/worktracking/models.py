@@ -125,7 +125,7 @@ class Issue(models.Model):
     station_type = models.CharField(max_length=20, choices=StationType.choices, default=StationType.NA)
     issue_type = models.CharField(max_length=20, choices=IssueEnum.choices)
     origin = models.CharField(max_length=15, blank=True, null=True)
-    reported_by = models.CharField(max_length=10, blank=True, null=True)
+    reported_by = models.CharField(max_length=15, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     photo = models.ImageField(upload_to='issue_photos/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
