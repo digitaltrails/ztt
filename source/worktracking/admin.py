@@ -208,7 +208,12 @@ class LineAdmin(ImportExportModelAdmin):
             issue_count=Count('issues', distinct=True),
             outing_count=Count('outings', distinct=True),
             completed_outing_count=Count('outings', filter=Q(outings__completion_status=CompletionStatus.COMPLETED),
-                                         distinct=True)
+                                         distinct=True),
+            unresolved_issue_count=Count(
+                'issues',
+                filter=(~Q(issues__issue_status=IssueStatusEnum.NO_ACTION_REQ) &
+                        ~Q(issues__issue_status=IssueStatusEnum.FIXED)),
+                distinct=True)
         )
         return queryset
 
