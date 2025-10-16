@@ -140,9 +140,11 @@ class Issue(models.Model):
     )
 
     def __str__(self):
+        extra = self.reported_by if self.reported_by else ''
+        extra += (f"{extra} - " if extra else '') + self.origin if self.origin else ''
+        extra = f"(extra)" if extra else ''
         return f"Issue {self.id} {self.created_at.strftime("%d/%m/%y")} " \
-               f" at station {self.start_station_id}: {self.get_issue_type_display()}" \
-               f" {'(' + self.reported_by + ' - ' + self.origin + ')' if self.reported_by or self.origin else ''}"
+               f" at station {self.start_station_id}: {self.get_issue_type_display()} {extra}"
 
 class CompletionReport(Line):
     """
