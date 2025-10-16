@@ -109,16 +109,10 @@ class IssueInline(admin.TabularInline):
     form = IssueForm
     extra = 1
     show_change_link = True
-    fields = ('issue_status', 'start_station_id', 'end_station_id', 'issue_type', 'station_type', 'date_only', 'description', 'reported_by', 'photo')
-    readonly_fields = ('date_only',)
+    fields = ('issue_status', 'start_station_id', 'end_station_id', 'issue_type', 'station_type', 'description', 'photo')
+    readonly_fields = ()
     verbose_name = "Issue"
     verbose_name_plural = "Issues"
-
-    def date_only(self, obj):
-        if obj.created_at:
-            return obj.created_at.strftime("%d/%m/%y")
-        return "-"
-    date_only.short_description = 'Created'
 
 @admin.register(Line)
 class LineAdmin(ImportExportModelAdmin):
@@ -403,7 +397,7 @@ class IssueAdmin(ImportExportModelAdmin):
 
     form = IssueForm
     resource_class = IssueResource
-    list_display = ('line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'date_only', 'description')
+    list_display = ('id', 'line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'date_only', 'description')
     list_filter = ('issue_status', 'issue_type', 'station_type', 'origin', 'reported_by')
     search_fields = ('start_station_id', 'description', 'origin', 'reported_by')
     readonly_fields = ('created_at', 'updated_at')
