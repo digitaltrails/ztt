@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
@@ -60,6 +60,10 @@ class Line(models.Model):
     line_type = models.CharField(max_length=20, choices=LineType.choices)
     start_station_id = models.CharField(max_length=5)
     end_station_id = models.CharField(max_length=5)
+    work_priority = models.IntegerField(null=True,  # Allows NULL in the database
+                                        blank=True, # Allows the field to be left blank in forms
+                                        validators=(MinValueValidator(1), MaxValueValidator(10)),
+                                        help_text="Priority for work 1..10, 1 is highest." )
 
     def __str__(self):
         return f"{self.name} ({self.get_line_type_display()})"
@@ -141,8 +145,8 @@ class Issue(models.Model):
 
     def __str__(self):
         extra = self.reported_by if self.reported_by else ''
-        extra += (f"{extra} - " if extra else '') + self.origin if self.origin else ''
-        extra = f"(extra)" if extra else ''
+        extra = ((f"{extra} - " if extra else '') + self.origin) if self.origin else ''
+        extra = f"({extra})" if extra else ''
         return f"Issue {self.id} {self.created_at.strftime("%d/%m/%y")} " \
                f" at station {self.start_station_id}: {self.get_issue_type_display()} {extra}"
 

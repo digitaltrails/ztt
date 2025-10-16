@@ -121,14 +121,14 @@ class LineAdmin(ImportExportModelAdmin):
 
     form = LineForm
     inlines = [OutingInline, IssueInline]
-    list_display = ('name', 'line_type', 'start_station_id', 'end_station_id',
+    list_display = ('name', 'line_type', 'start_station_id', 'end_station_id', 'work_priority',
                     'outing_count', 'completed_outings_count', 'unresolved_issue_count',)
     list_filter = ('line_type',)
-    search_fields = ('name', 'start_station_id', 'end_station_id')
+    search_fields = ('name', 'start_station_id', 'end_station_id', 'work_priority')
     readonly_fields = ('outings_list', 'issues_list')
     fieldsets = (
         (None, {
-            'fields': ('name', 'line_type', 'start_station_id', 'end_station_id')
+            'fields': ('name', 'line_type', 'start_station_id', 'end_station_id', 'work_priority')
         }),
     )
 
@@ -243,6 +243,7 @@ class LineAdmin(ImportExportModelAdmin):
             resource.line_name = line.name
             resource.line_admin_url = line_admin_url
             resource.line_type = line.line_type
+            resource.work_priority = line.work_priority
             resource.last_partial = last_partial
             resource.last_completed = last_completed
             resource.completed_count = completed_count
@@ -279,8 +280,12 @@ class LineAdmin(ImportExportModelAdmin):
         def sort_key_line_name(x):
             return x.line_name
 
+        def sort_key_work_priority(x):
+            return x.work_priority
+
         # Apply sorting based on parameters
         sort_functions = {
+            'work_priority': sort_key_work_priority,
             'last_completed': sort_key_last_completed,
             'last_partial': sort_key_last_partial,
             'completed_count': sort_key_completed_count,
