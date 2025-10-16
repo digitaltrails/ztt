@@ -3,8 +3,8 @@
 {% block extrahead %}
 {{ block.super }}
 <style>
+/* Same CSS as above */
 @media print {
-    /* Your existing styles - keep these */
     #header,
     .breadcrumbs,
     .submit-row,
@@ -13,7 +13,8 @@
     .deletelink-box,
     .historylink,
     #nav-sidebar,
-    .help {
+    .help,
+    #changelist-filter {
         display: none !important;
     }
 
@@ -34,30 +35,21 @@
         padding: 8px 0 !important;
     }
 
-    /* NEW: Change list specific styles */
-    /* Hide the filter sidebar */
-    #changelist-filter {
-        display: none !important;
-    }
-
-    /* Make main content full width when filters are hidden */
     .colMS {
         margin-right: 0 !important;
     }
 
-    /* Ensure filter summary is visible and has proper background */
     .print-filter-summary {
         display: block !important;
-        background: #f8f9fa !important; /* Override the * selector */
+        background: #f8f9fa !important;
         border: 1px solid #dee2e6 !important;
         padding: 8px 12px !important;
         margin-bottom: 15px !important;
         border-radius: 4px !important;
-        font-size: 14pt !important; /* Match your larger font size */
+        font-size: 14pt !important;
         page-break-inside: avoid !important;
     }
 
-    /* Fix for change list tables */
     #changelist .results {
         width: 100% !important;
     }
@@ -67,7 +59,6 @@
     }
 }
 
-/* Hide filter summary on screen */
 .print-filter-summary {
     display: none;
 }
@@ -75,30 +66,71 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Only run on change list pages
     const changelist = document.getElementById('changelist');
     if (!changelist) return;
 
-    // Create filter summary
     const filterSummary = document.createElement('div');
     filterSummary.className = 'print-filter-summary';
 
-    // Get active filters
     const activeFilters = [];
-    const selectedFilters = document.querySelectorAll('#changelist-filter .selected a');
 
-    selectedFilters.forEach(link => {
-        const text = link.textContent.replace('×', '').trim();
-        if (text) activeFilters.push(text);
-    });
+    try {
+        // Method 1: Look for details elements with data-filter-title
+        let filterDetails = document.querySelectorAll('#changelist-filter details[data-filter-title]');
+
+        // If no details found, try alternative selectors
+        if (filterDetails.length === 0) {
+            filterDetails = document.querySelectorAll('#changelist-filter [data-filter-title]');
+        }
+
+        console.log('Found', filterDetails.length, 'filter sections with titles');
+
+        filterDetails.forEach(details => {
+            const fieldName = details.getAttribute('data-filter-title');
+            if (!fieldName) return;
+
+            // Clean up the field name (remove "By " if present)
+            const cleanFieldName = fieldName.replace(/^By\s+/i, '');
+
+            // Find selected items in this section
+            const selectedItems = details.querySelectorAll('.selected a');
+
+            selectedItems.forEach(link => {
+                const value = link.textContent.replace('×', '').trim();
+                if (value && value !== 'All' && value !== 'Any') {
+                    activeFilters.push({
+                        field: cleanFieldName,
+                        value: value
+                    });
+                }
+            });
+        });
+
+        // If we still haven't found any filters, try the old method as fallback
+        if (activeFilters.length === 0) {
+            const selectedFilters = document.querySelectorAll('#changelist-filter .selected a');
+            selectedFilters.forEach(link => {
+                const value = link.textContent.replace('×', '').trim();
+                if (value && value !== 'All') {
+                    activeFilters.push({
+                        field: 'Filter',
+                        value: value
+                    });
+                }
+            });
+        }
+
+    } catch (error) {
+        console.error('Error processing filters:', error);
+    }
 
     // Build the summary
-    let summaryHTML = '<strong>Applied Filters:</strong> ';
+    let summaryHTML = '<strong>Applied Filters:</strong>';
 
     if (activeFilters.length > 0) {
         summaryHTML += '<ul style="margin: 8px 0 0 0; padding-left: 20px;">';
         activeFilters.forEach(filter => {
-            summaryHTML += `<li>${filter}</li>`;
+            summaryHTML += `<li><strong>${filter.field}:</strong> ${filter.value}</li>`;
         });
         summaryHTML += '</ul>';
     } else {
@@ -107,14 +139,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     filterSummary.innerHTML = summaryHTML;
 
-    // Insert before the results
+    // Insert the summary
     const results = document.querySelector('#changelist .results');
     if (results) {
         results.parentNode.insertBefore(filterSummary, results);
     } else {
-        // Fallback: insert at top of changelist
         changelist.insertBefore(filterSummary, changelist.firstChild);
     }
 });
 </script>
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
 {% endblock %}
