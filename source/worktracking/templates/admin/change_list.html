@@ -4,6 +4,7 @@
 <!-- Print filter summary -->
 <div class="print-filter-summary" style="display: none;">
     <strong>Applied Filters:</strong>
+
     {% if cl.has_filters and cl.filter_specs %}
         <ul style="margin: 8px 0 0 0; padding-left: 20px;">
         {% for filter_spec in cl.filter_specs %}
