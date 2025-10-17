@@ -4,24 +4,31 @@
 <!-- Print filter summary -->
 <div class="print-filter-summary" style="display: none;">
     <strong>Applied Filters:</strong>
-    {% if request.GET %}
+    {% if cl.has_filters and cl.filter_specs %}
         <ul style="margin: 8px 0 0 0; padding-left: 20px;">
-        {% for key, value in request.GET.items %}
-            {% if key != 'q' and key != 'p' and key != 'o' and key != 'e' and key != '_changelist_filters' %}
-                {% comment %} Map parameter names to friendly names {% endcomment %}
-                {% if key == 'is_active' %}
-                    <li><strong>Active:</strong> {% if value == '1' %}Yes{% else %}No{% endif %}</li>
-                {% elif key == 'status' %}
-                    <li><strong>Status:</strong> {{ value|title }}</li>
-                {% elif key == 'category' %}
-                    <li><strong>Category:</strong> {{ value|title }}</li>
-                {% elif key == 'type' %}
-                    <li><strong>Type:</strong> {{ value|title }}</li>
-                {% elif key == 'user' %}
-                    <li><strong>User:</strong> {{ value }}</li>
-                {% else %}
-                    <li><strong>{{ key|title }}:</strong> {{ value }}</li>
-                {% endif %}
+        {% for filter_spec in cl.filter_specs %}
+            {% if filter_spec.lookup_val %}
+                <li>
+                    <strong>{{ filter_spec.title }}:</strong>
+                    {% comment %}
+                    Handle different value types:
+                    - Boolean: convert 1/0 to Yes/No
+                    - Lists: extract first item
+                    - Strings: use as-is
+                    {% endcomment %}
+                    {% if filter_spec.lookup_val == '1' %}
+                        Yes
+                    {% elif filter_spec.lookup_val == '0' %}
+                        No
+                    {% else %}
+                        {# Handle list values like ['Value'] #}
+                        {% if filter_spec.lookup_val.0 %}
+                            {{ filter_spec.lookup_val.0 }}
+                        {% else %}
+                            {{ filter_spec.lookup_val }}
+                        {% endif %}
+                    {% endif %}
+                </li>
             {% endif %}
         {% endfor %}
         </ul>

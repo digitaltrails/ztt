@@ -3,8 +3,8 @@
 {% block extrahead %}
 {{ block.super }}
 <style>
-/* Same CSS as above */
 @media print {
+    /* Hide admin interface elements */
     #header,
     .breadcrumbs,
     .submit-row,
@@ -39,6 +39,7 @@
         margin-right: 0 !important;
     }
 
+    /* Show the filter summary when printing */
     .print-filter-summary {
         display: block !important;
         background: #f8f9fa !important;
@@ -59,97 +60,9 @@
     }
 }
 
+/* Hide filter summary on screen by default */
 .print-filter-summary {
     display: none;
 }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const changelist = document.getElementById('changelist');
-    if (!changelist) return;
-
-    const filterSummary = document.createElement('div');
-    filterSummary.className = 'print-filter-summary';
-
-    const activeFilters = [];
-
-    try {
-        // Method 1: Look for details elements with data-filter-title
-        let filterDetails = document.querySelectorAll('#changelist-filter details[data-filter-title]');
-
-        // If no details found, try alternative selectors
-        if (filterDetails.length === 0) {
-            filterDetails = document.querySelectorAll('#changelist-filter [data-filter-title]');
-        }
-
-        console.log('Found', filterDetails.length, 'filter sections with titles');
-
-        filterDetails.forEach(details => {
-            const fieldName = details.getAttribute('data-filter-title');
-            if (!fieldName) return;
-
-            // Clean up the field name (remove "By " if present)
-            const cleanFieldName = fieldName.replace(/^By\s+/i, '');
-
-            // Find selected items in this section
-            const selectedItems = details.querySelectorAll('.selected a');
-
-            selectedItems.forEach(link => {
-                const value = link.textContent.replace('×', '').trim();
-                if (value && value !== 'All' && value !== 'Any') {
-                    activeFilters.push({
-                        field: cleanFieldName,
-                        value: value
-                    });
-                }
-            });
-        });
-
-        // If we still haven't found any filters, try the old method as fallback
-        if (activeFilters.length === 0) {
-            const selectedFilters = document.querySelectorAll('#changelist-filter .selected a');
-            selectedFilters.forEach(link => {
-                const value = link.textContent.replace('×', '').trim();
-                if (value && value !== 'All') {
-                    activeFilters.push({
-                        field: 'Filter',
-                        value: value
-                    });
-                }
-            });
-        }
-
-    } catch (error) {
-        console.error('Error processing filters:', error);
-    }
-
-    // Build the summary
-    let summaryHTML = '<strong>Applied Filters:</strong>';
-
-    if (activeFilters.length > 0) {
-        summaryHTML += '<ul style="margin: 8px 0 0 0; padding-left: 20px;">';
-        activeFilters.forEach(filter => {
-            summaryHTML += `<li><strong>${filter.field}:</strong> ${filter.value}</li>`;
-        });
-        summaryHTML += '</ul>';
-    } else {
-        summaryHTML += '<span style="margin-left: 10px;">None</span>';
-    }
-
-    filterSummary.innerHTML = summaryHTML;
-
-    // Insert the summary
-    const results = document.querySelector('#changelist .results');
-    if (results) {
-        results.parentNode.insertBefore(filterSummary, results);
-    } else {
-        changelist.insertBefore(filterSummary, changelist.firstChild);
-    }
-});
-</script>
-{% endblock %}
-
-{% block content %}
-{{ block.super }}
 {% endblock %}
