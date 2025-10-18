@@ -1,6 +1,8 @@
+from decimal import Decimal, ROUND_UP
+
+from django.contrib import admin
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db import models
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
 
@@ -58,8 +60,8 @@ class Line(models.Model):
         ordering = ['name'] # Orders by 'name' in ascending order
     name = models.CharField(max_length=100)
     line_type = models.CharField(max_length=20, choices=LineType.choices)
-    start_station_id = models.CharField(max_length=5)
-    end_station_id = models.CharField(max_length=5)
+    start_station_id = models.CharField(max_length=5, verbose_name="Start Stn",)
+    end_station_id = models.CharField(max_length=5, verbose_name="End Stn",)
     work_priority = models.IntegerField(null=True,  # Allows NULL in the database
                                         blank=True, # Allows the field to be left blank in forms
                                         validators=(MinValueValidator(1), MaxValueValidator(10)),
@@ -91,7 +93,8 @@ class Outing(models.Model):
         decimal_places=1,
         validators=[MinValueValidator(0)],
         default=1,
-        help_text="Number of workers (can be decimal, e.g., 2.5 if someone left early)"
+        verbose_name="FTE",
+        help_text="Number of Full-Time-Equivalent workers (can be decimal, e.g., 2.5 if someone left early)"
     )
     participants = models.ManyToManyField(
         TeamMember,
@@ -108,14 +111,43 @@ class Outing(models.Model):
         max_length=5,
         blank=True,
         null=True,
+        verbose_name="Start Stn",
         help_text="Starting station ID for this outing (subset of the line)"
     )
     end_station_id = models.CharField(
         max_length=5,
         blank=True,
         null=True,
+        verbose_name="End Stn",
         help_text="Ending station ID for this outing (subset of the line)"
     )
+
+    @admin.display(
+        description="Min/Station",
+    )
+    def minutes_per_station(self):
+        try:
+            if not self.hours or self.hours == 0 or self.number_of_workers == 0:
+                return Decimal(0).quantize(Decimal('.01'), rounding=ROUND_UP)
+            num_stns = abs(int(self.start_station_id) - int(self.end_station_id))
+            minutes_per = (self.hours * 60 / num_stns)
+            return Decimal(minutes_per).quantize(Decimal('.01'), rounding=ROUND_UP)
+        except (TypeError, ValueError):
+            return Decimal(0).quantize(Decimal('.01'), rounding=ROUND_UP)
+
+    @admin.display(
+        description="3 FTE M/S",
+    )
+    def normalized_minutes_per_station(self):
+        # Estimate time per station for 3 FTE workers from actual number of workers.
+        try:
+            if not self.hours or self.hours == 0 or self.number_of_workers == 0:
+                return Decimal(0).quantize(Decimal('.01'), rounding=ROUND_UP)
+            num_stns = abs(int(self.start_station_id) - int(self.end_station_id))
+            normalized_minutes_per = (self.hours * 60 / num_stns) * (self.number_of_workers / 3)
+            return Decimal(normalized_minutes_per).quantize(Decimal('.01'), rounding=ROUND_UP)
+        except (TypeError, ValueError):
+             return Decimal(0).quantize(Decimal('.01'), rounding=ROUND_UP)
 
     def __str__(self):
         return f"Outing on {self.date} - {self.get_completion_status_display()}"
@@ -124,8 +156,8 @@ class Issue(models.Model):
     issue_status = models.CharField(max_length=20, choices=IssueStatusEnum.choices, default=IssueStatusEnum.NEEDS_WORK)
     line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name='issues')
 
-    start_station_id = models.CharField(max_length=5)
-    end_station_id = models.CharField(max_length=5, blank=True, null=True)
+    start_station_id = models.CharField(max_length=5, verbose_name="Start Stn")
+    end_station_id = models.CharField(max_length=5, blank=True, null=True, verbose_name="End Stn")
     station_type = models.CharField(max_length=20, choices=StationType.choices, default=StationType.NA)
     issue_type = models.CharField(max_length=20, choices=IssueEnum.choices)
     origin = models.CharField(max_length=15, blank=True, null=True)

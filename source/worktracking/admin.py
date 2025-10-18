@@ -90,10 +90,18 @@ class OutingInline(admin.TabularInline):
     can_add = False
     can_delete = False
     show_change_link = True
-    fields = ('date', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers')
+    fields = ('date', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers', 'participants',
+              'minutes_per_station', 'normalized_minutes_per_station', )
     readonly_fields = fields
     verbose_name = "Outing"
     verbose_name_plural = "Outings"
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        # Allow viewing but not changing
+        return bool(obj) and request.method == 'GET'
 
 class IssueInline(admin.TabularInline):
     model = Issue
@@ -348,11 +356,13 @@ class OutingAdmin(ImportExportModelAdmin):
 
     form = OutingForm
     list_display = ('date', 'route', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers',
-                    'get_participants', 'normalized_minutes_per_station')
+                    'minutes_per_station', 'normalized_minutes_per_station', 'get_participants',)
     list_filter = ('completion_status', 'date', 'participants', 'route',)
+    readonly_fields = ('minutes_per_station', 'normalized_minutes_per_station', )
     fieldsets = (
         (None, {
-            'fields': ('date', 'route', 'completion_status', 'hours', 'number_of_workers', 'start_station_id', 'end_station_id', 'participants')
+            'fields': ('date', 'route', 'completion_status', 'hours', 'number_of_workers', 'start_station_id', 'end_station_id',
+                       'participants',('minutes_per_station', 'normalized_minutes_per_station',) )
         }),
     )
     filter_horizontal = ('participants',)
@@ -361,21 +371,6 @@ class OutingAdmin(ImportExportModelAdmin):
     def get_participants(self, obj):
         return ", ".join([p.name for p in obj.participants.all()])
     get_participants.short_description = 'Team Members'
-
-    def normalized_minutes_per_station(self, obj):
-        # Handle cases where hours is 0 or None
-        try:
-            if not obj.hours or obj.hours == 0 or obj.number_of_workers == 0:
-                return "N/A"
-            num_stns = abs(int(obj.start_station_id) - int(obj.end_station_id))
-            minutes_per = (obj.hours * 60 / num_stns)
-            normalized_minutes_per = (obj.hours * 60 / num_stns) * (obj.number_of_workers / 3)
-            return f"{minutes_per:.2f}  [{normalized_minutes_per:.2f}]"  # Round to 2 decimal places
-        except (TypeError, ValueError):
-             return "N/A"
-
-    # Set column header name
-    normalized_minutes_per_station.short_description = 'Mins/Stn [Normalized]'
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('participants')
