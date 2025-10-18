@@ -375,6 +375,23 @@ class OutingAdmin(ImportExportModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('participants')
 
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "participants":
+            # Get the current outing instance if editing existing
+            obj_id = request.resolver_match.kwargs.get('object_id')
+            if obj_id:
+                # Editing existing outing - Show available members and current participants in this outing
+                current_outing = Outing.objects.get(pk=obj_id)
+                current_participants = current_outing.participants.all()
+                available_members = TeamMember.objects.filter(available=True)
+                kwargs["queryset"] = (available_members | current_participants).distinct()
+                kwargs["help_text"] = "Showing existing participants and available team members (unavailable team members are not shown, unless already participating)."
+            else:
+                # Creating new outing - only show available
+                kwargs["queryset"] = TeamMember.objects.filter(available=True)
+                kwargs["help_text"] = "These team members are marked as available (unavailable team members are not shown)."
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
+
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
         for instance in instances:
