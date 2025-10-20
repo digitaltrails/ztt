@@ -480,9 +480,10 @@ class IssueAdmin(TransectModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
 
     def date_only(self, obj):
-        if obj.created_at:
-            return obj.created_at.strftime("%d/%m/%y")
-        return "-"
+        by = (' ' + obj.reported_by) if obj.reported_by else ''
+        #origin = (' ' + obj.origin) if obj.origin else ''
+        when = obj.created_at.strftime("%d/%m/%y") if obj.created_at else '-'
+        return when + by #+ origin
     date_only.short_description = 'Created'
 
     def _make_related_link(self, obj, field_name, app_label, model_name, allow_breaks=False):
