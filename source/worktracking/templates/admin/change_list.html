@@ -1,5 +1,7 @@
 {% extends "admin/change_list.html" %}
 
+{% load transect_extra_tags %}
+
 {% block extrahead %}
 {{ block.super }}
 <style>
@@ -71,6 +73,25 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 {% endblock %}
 
-{% block content %}
-{{ block.super }}
+
+{% block object-tools-items %}
+    {{ block.super }}
+
+    {% if cl.result_count > cl.list_per_page or cl.unlimited %}
+        <li>
+            {% if cl.unlimited %}
+                <a href="?{% remove_query_param request 'list_per_page' %}" class="button" style="background: #417690; color: white;">
+                    Paged View
+                </a>
+            {% else %}
+                    <a href="?{% set_query_param request 'list_per_page' 0 %}" style="background: #ba2121; color: white;">
+                        Show All
+                    </a>
+            {% endif %}
+        </li>
+    {% endif %}
 {% endblock %}
+
+
+
+

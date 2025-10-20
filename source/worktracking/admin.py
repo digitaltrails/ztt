@@ -1,11 +1,11 @@
 import datetime
-import csv
 from django.contrib import admin
+from django.contrib.admin.views.main import ChangeList
 from django.db.models import Max, IntegerField
 from django.db.models.functions import Cast
 from django.urls import path
 from django.shortcuts import render
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.utils.html import format_html
 from django.urls import reverse
 from django import forms
@@ -20,6 +20,49 @@ admin.site.site_header = "Transect Admin"  # Main header text
 admin.site.site_title = "Transect Admin"    # Browser tab title
 admin.site.index_title = "Transect Admin"  # Dashboard subtitle
 from django.forms import CheckboxSelectMultiple
+
+
+class DynPaginationChangeList(ChangeList):
+
+    normal = 100
+    unlimited = 10_000
+
+    def __init__(self, request, model, list_display, list_display_links, list_filter, date_hierarchy, search_fields, list_select_related, list_per_page, list_max_show_all, list_editable, model_admin, sortable_by, search_help_text):
+        page_param = request.GET.get('list_per_page', None)
+        if page_param is not None:
+            # Override list_per_page if present in URL
+            # Need to be before super call to be applied on filters
+            list_per_page = int(page_param)
+            if list_per_page == 0:
+                list_per_page = DynPaginationChangeList.unlimited
+        self.unlimited = list_per_page == DynPaginationChangeList.unlimited
+        super(DynPaginationChangeList, self).__init__(request, model, list_display, list_display_links, list_filter, date_hierarchy, search_fields, list_select_related, list_per_page, list_max_show_all, list_editable, model_admin, sortable_by, search_help_text)
+
+    def get_filters_params(self, params=None):
+        """
+        Return all params except IGNORED_PARAMS and 'list_per_page'
+        """
+        lookup_params = super(DynPaginationChangeList, self).get_filters_params(params)
+        if 'list_per_page' in lookup_params:
+            del lookup_params['list_per_page']
+        return lookup_params
+
+    def is_unlimted(self):
+        return self.list_per_page == DynPaginationChangeList.unlimited
+
+class AdminDynPaginationMixin:
+    def get_changelist(self, request, **kwargs):
+        return DynPaginationChangeList
+
+class TransectModelAdmin(AdminDynPaginationMixin, admin.ModelAdmin):
+    def changelist_view(self, request, extra_context=None):
+        # Change default number of per page
+        page_param = int(request.GET.get('list_per_page', [DynPaginationChangeList.normal])[0])
+        if page_param == 0:
+            page_param = DynPaginationChangeList.unlimited
+        # Dynamically set the django admin list size based on query parameter.
+        self.list_per_page = page_param
+        return super(TransectModelAdmin, self).changelist_view(request, extra_context)
 
 
 class CompactModelForm(forms.ModelForm):
@@ -123,7 +166,7 @@ class IssueInline(admin.TabularInline):
     verbose_name_plural = "Issues"
 
 @admin.register(Line)
-class LineAdmin(ImportExportModelAdmin):
+class LineAdmin(TransectModelAdmin):
     def has_import_permission(self, request):
         return request.user.is_superuser
 
@@ -339,7 +382,7 @@ class CompletionReportAdmin(admin.ModelAdmin):
         return request.user.has_perm('worktracking.view_line')
 
 @admin.register(TeamMember)
-class TeamMemberAdmin(ImportExportModelAdmin):
+class TeamMemberAdmin(TransectModelAdmin):
 
     def has_import_permission(self, request):
         return request.user.is_superuser
@@ -349,7 +392,7 @@ class TeamMemberAdmin(ImportExportModelAdmin):
     search_fields = ('name', 'available')
 
 @admin.register(Outing)
-class OutingAdmin(ImportExportModelAdmin):
+class OutingAdmin(TransectModelAdmin):
 
     def has_import_permission(self, request):
         return request.user.is_superuser
@@ -379,6 +422,7 @@ class OutingAdmin(ImportExportModelAdmin):
         if db_field.name == "participants":
             # Get the current outing instance if editing existing
             obj_id = request.resolver_match.kwargs.get('object_id')
+            total_count = TeamMember.objects.count()
             if obj_id:
                 # Editing existing outing - Show available members and current participants in this outing
                 current_outing = Outing.objects.get(pk=obj_id)
@@ -388,8 +432,10 @@ class OutingAdmin(ImportExportModelAdmin):
                 kwargs["help_text"] = "Showing existing participants and available team members (unavailable team members are not shown, unless already participating)."
             else:
                 # Creating new outing - only show available
+                available_count = TeamMember.objects.filter(available=True).count()
                 kwargs["queryset"] = TeamMember.objects.filter(available=True)
-                kwargs["help_text"] = "These team members are marked as available (unavailable team members are not shown)."
+                kwargs["help_text"] = (f"These {available_count} team members are available for outings "
+                                       f"({total_count - available_count} unavailable team members are not shown).")
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def save_formset(self, request, form, formset, change):
@@ -407,7 +453,7 @@ class IssueResource(resources.ModelResource):
                   'station_type', 'outing', 'issue_type', 'outing', 'origin', 'created_at', 'description')
 
 @admin.register(Issue)
-class IssueAdmin(ImportExportModelAdmin):
+class IssueAdmin(TransectModelAdmin):
 
     def has_import_permission(self, request):
         return request.user.is_superuser
