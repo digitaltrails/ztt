@@ -460,7 +460,7 @@ class IssueAdmin(TransectModelAdmin):
 
     form = IssueForm
     resource_class = IssueResource
-    list_display = ('id', 'line', 'issue_status', 'start_station_id', 'outing', 'issue_type', 'date_only', 'description')
+    list_display = ('id', 'line_link', 'issue_status', 'start_station_id', 'outing_link', 'issue_type', 'date_only', 'description')
     list_filter = ('issue_status', 'issue_type', 'station_type', 'origin', 'reported_by')
     search_fields = ('start_station_id', 'description', 'origin', 'reported_by')
     readonly_fields = ('created_at', 'updated_at')
@@ -470,6 +470,30 @@ class IssueAdmin(TransectModelAdmin):
             return obj.created_at.strftime("%d/%m/%y")
         return "-"
     date_only.short_description = 'Created'
+
+    def _make_related_link(self, obj, field_name, app_label, model_name, allow_breaks=False):
+        related_obj = getattr(obj, field_name, None)
+        if related_obj:
+            url = reverse(f'admin:{app_label}_{model_name}_change', args=[related_obj.id])
+            if allow_breaks:
+                html = '<span><a href="{}">{}</a></span>'
+            else:
+                html =  '<span style="white-space: nowrap;"><a href="{}">{}</a></span>'
+
+            return format_html(html, url, related_obj)
+        return "-"
+
+    def line_link(self, obj):
+        return self._make_related_link(obj, 'line', 'worktracking', 'line')
+
+    line_link.short_description = 'Line'
+    line_link.admin_order_field = 'line'
+
+    def outing_link(self, obj):
+        return self._make_related_link(obj, 'outing', 'worktracking', 'outing', allow_breaks=True)
+
+    outing_link.short_description = 'Outing'
+    outing_link.admin_order_field = 'outing'
 
 @admin.register(Audit)
 class AuditAdmin(ExportActionMixin, admin.ModelAdmin):
