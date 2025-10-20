@@ -1,7 +1,7 @@
 import datetime
 from django.contrib import admin
 from django.contrib.admin.views.main import ChangeList
-from django.db.models import Max, IntegerField
+from django.db.models import Max, IntegerField, Case, When, Value
 from django.db.models.functions import Cast
 from django.urls import path
 from django.shortcuts import render
@@ -172,9 +172,9 @@ class LineAdmin(TransectModelAdmin):
 
     form = LineForm
     inlines = [OutingInline, IssueInline]
-    list_display = ('name', 'line_type', 'start_station_id', 'end_station_id', 'work_priority',
+    list_display = ('name', 'line_type', 'start_station_id', 'end_station_id', 'work_priority_display',
                     'outing_count', 'completed_outings_count', 'unresolved_issue_count',)
-    list_filter = ('line_type',)
+    list_filter = ('line_type', 'work_priority',)
     search_fields = ('name', 'start_station_id', 'end_station_id', 'work_priority')
     readonly_fields = ('outings_list', 'issues_list')
     fieldsets = (
@@ -258,9 +258,23 @@ class LineAdmin(TransectModelAdmin):
                 'issues',
                 filter=(~Q(issues__issue_status=IssueStatusEnum.NO_ACTION_REQ) &
                         ~Q(issues__issue_status=IssueStatusEnum.FIXED)),
-                distinct=True)
+                distinct=True),
+            ordered_work_priority=Case(
+                # Keep natural values for non-NULL, set NULL to 99
+                When(work_priority__isnull=True, then=Value(99)),
+                default='work_priority',  # Use the natural value for non-NULL
+                output_field=IntegerField(),
+            )
         )
         return queryset
+
+    def work_priority_display(self, obj):
+        if obj.work_priority is None:
+            return "-"  # Or whatever display you want for NULL
+        return obj.work_priority  # Display the natural value
+
+    work_priority_display.admin_order_field = 'ordered_work_priority'
+    work_priority_display.short_description = 'Priority'
 
     def completion_report(self, request: HttpRequest):
         # Get sort parameter from request
