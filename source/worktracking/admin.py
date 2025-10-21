@@ -64,6 +64,17 @@ class TransectModelAdmin(AdminDynPaginationMixin, admin.ModelAdmin):
         self.list_per_page = page_param
         return super(TransectModelAdmin, self).changelist_view(request, extra_context)
 
+    def _make_related_link(self, obj, field_name, app_label, model_name, allow_breaks=False):
+        related_obj = getattr(obj, field_name, None)
+        if related_obj:
+            url = reverse(f'admin:{app_label}_{model_name}_change', args=[related_obj.id])
+            if allow_breaks:
+                html = '<span><a target="_blank" rel="noopener" href="{}">{}</a></span>'
+            else:
+                html =  '<span style="white-space: nowrap;"><a target="_blank" rel="noopener" href="{}">{}</a></span>'
+
+            return format_html(html, url, related_obj)
+        return "-"
 
 class CompactModelForm(forms.ModelForm):
 
@@ -412,7 +423,7 @@ class OutingAdmin(TransectModelAdmin):
         return request.user.is_superuser
 
     form = OutingForm
-    list_display = ('date', 'route', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers',
+    list_display = ('date', 'route_link', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers',
                     'minutes_per_station', 'normalized_minutes_per_station', 'get_participants',)
     list_filter = ('completion_status', 'date', 'participants', 'route',)
     readonly_fields = ('minutes_per_station', 'normalized_minutes_per_station', )
@@ -424,6 +435,12 @@ class OutingAdmin(TransectModelAdmin):
     )
     filter_horizontal = ('participants',)
     inlines = [IssueInline]
+
+    def route_link(self, obj):
+        return self._make_related_link(obj, 'route', 'worktracking', 'line')
+
+    route_link.short_description = 'Route'
+    route_link.admin_order_field = 'route'
 
     def get_participants(self, obj):
         return ", ".join([p.name for p in obj.participants.all()])
@@ -485,18 +502,6 @@ class IssueAdmin(TransectModelAdmin):
         when = obj.created_at.strftime("%d/%m/%y") if obj.created_at else '-'
         return when + by #+ origin
     date_only.short_description = 'Created'
-
-    def _make_related_link(self, obj, field_name, app_label, model_name, allow_breaks=False):
-        related_obj = getattr(obj, field_name, None)
-        if related_obj:
-            url = reverse(f'admin:{app_label}_{model_name}_change', args=[related_obj.id])
-            if allow_breaks:
-                html = '<span><a href="{}">{}</a></span>'
-            else:
-                html =  '<span style="white-space: nowrap;"><a href="{}">{}</a></span>'
-
-            return format_html(html, url, related_obj)
-        return "-"
 
     def line_link(self, obj):
         return self._make_related_link(obj, 'line', 'worktracking', 'line')
