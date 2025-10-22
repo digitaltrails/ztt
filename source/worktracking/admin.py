@@ -54,7 +54,7 @@ class AdminDynPaginationMixin:
     def get_changelist(self, request, **kwargs):
         return DynPaginationChangeList
 
-class TransectModelAdmin(AdminDynPaginationMixin, admin.ModelAdmin):
+class TransectModelAdmin(AdminDynPaginationMixin, ImportExportModelAdmin):
     def changelist_view(self, request, extra_context=None):
         # Change default number of per page
         page_param = int(request.GET.get('list_per_page', [DynPaginationChangeList.normal])[0])
