@@ -5,6 +5,7 @@ from worktracking.models import Line  # Your line model
 
 class LineCompletionResource(resources.Resource):
     line_name = fields.Field(attribute='line__name', column_name='Line Name')
+    work_priority = fields.Field(attribute='line__work_priority', column_name="Priority")
     line_type = fields.Field(attribute='line__get_line_type_display', column_name='Type')
     last_completed = fields.Field(column_name='Last Completed')
     last_partial = fields.Field(column_name='Last Partial')

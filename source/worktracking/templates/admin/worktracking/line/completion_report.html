@@ -87,7 +87,9 @@
           Line {% if sort_by == 'line_name' %}<span class="sort-indicator">{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
         </th>
         <th>Type</th>
-        <th>Priority</th>
+        <th onclick="sortReport('work_priority')">
+          Priority {% if sort_by == 'work_priority' %}<span class="sort-indicator">{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
+        </th>
         <th onclick="sortReport('last_completed')">
           Last Completed {% if sort_by == 'last_completed' %}<span class="sort-indicator">{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}</span>{% endif %}
         </th>

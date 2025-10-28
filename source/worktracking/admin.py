@@ -357,7 +357,7 @@ class LineAdmin(TransectModelAdmin):
             return x.line_name
 
         def sort_key_work_priority(x):
-            return x.work_priority
+            return x.work_priority if x.work_priority else 99
 
         # Apply sorting based on parameters
         sort_functions = {
