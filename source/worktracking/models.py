@@ -141,10 +141,8 @@ class Outing(models.Model):
     def normalized_minutes_per_station(self):
         # Estimate time per station for 3 FTE workers from actual number of workers.
         try:
-            if not self.hours or self.hours == 0 or self.number_of_workers == 0:
-                return Decimal(0).quantize(Decimal('.01'), rounding=ROUND_UP)
-            num_stns = abs(int(self.start_station_id) - int(self.end_station_id))
-            normalized_minutes_per = (self.hours * 60 / num_stns) * (self.number_of_workers / 3)
+            minutes_per = self.minutes_per_station()
+            normalized_minutes_per = minutes_per * (self.number_of_workers / 3)
             return Decimal(normalized_minutes_per).quantize(Decimal('.01'), rounding=ROUND_UP)
         except (TypeError, ValueError):
              return Decimal(0).quantize(Decimal('.01'), rounding=ROUND_UP)
