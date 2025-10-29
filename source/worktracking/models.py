@@ -90,7 +90,7 @@ class Outing(models.Model):
     )
     number_of_workers = models.DecimalField(
         max_digits=4,
-        decimal_places=1,
+        decimal_places=2,
         validators=[MinValueValidator(0)],
         default=1,
         verbose_name="FTE",
