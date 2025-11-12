@@ -141,21 +141,21 @@ class OutingInline(admin.TabularInline):
     ordering = ('-date',)
     form = OutingForm
     extra = 0
-    can_add = False
+    #can_add = False
     can_delete = False
     show_change_link = True
     fields = ('date', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers', 'participants',
               'minutes_per_station', 'normalized_minutes_per_station', )
-    readonly_fields = fields
+    readonly_fields = ('minutes_per_station', 'normalized_minutes_per_station',)
     verbose_name = "Outing"
     verbose_name_plural = "Outings"
 
-    def has_add_permission(self, request, obj=None):
-        return False
+    # def has_add_permission(self, request, obj=None):
+    #     return False
 
-    def has_change_permission(self, request, obj=None):
-        # Allow viewing but not changing
-        return bool(obj) and request.method == 'GET'
+    # def has_change_permission(self, request, obj=None):
+    #     # Allow viewing but not changing
+    #     return bool(obj) and request.method == 'GET'
 
 class IssueInline(admin.TabularInline):
     model = Issue
