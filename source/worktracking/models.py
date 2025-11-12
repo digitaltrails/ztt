@@ -129,7 +129,7 @@ class Outing(models.Model):
         try:
             if not self.hours or self.hours == 0 or self.number_of_workers == 0:
                 return Decimal(0).quantize(Decimal('.01'), rounding=ROUND_UP)
-            num_stns = abs(int(self.start_station_id) - int(self.end_station_id))
+            num_stns = abs(int(self.start_station_id) - int(self.end_station_id)) + 1
             minutes_per = (self.hours * 60 / num_stns)
             return Decimal(minutes_per).quantize(Decimal('.01'), rounding=ROUND_UP)
         except (TypeError, ValueError):
