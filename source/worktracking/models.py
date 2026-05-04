@@ -6,6 +6,14 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
 from django.dispatch import receiver
 
+class OutingType(models.TextChoices):
+    NORMAL = 'Normal', 'Normal'
+    TAGGING = 'Tagging', 'Tagging'
+    INSPECTION = 'Inspection', 'Inspection'
+    ENTRANCE_CLEARING = 'Entrance-Clearing', 'Entrance-Clearing'
+    ENTRANCE_TRIANGLES = 'Entrance-Triangles', 'Entrance-Triangles'
+    SPECIAL = 'Special', 'Special'
+
 class CompletionStatus(models.TextChoices):
     COMPLETED = 'Completed', 'Completed'
     PARTIAL = 'Partial', 'Partially Worked On'
@@ -82,6 +90,19 @@ class TeamMember(models.Model):
 
 class Outing(models.Model):
     date = models.DateField()
+    type_of_outing = models.CharField(
+        max_length=20,
+        choices=OutingType.choices,
+        default=OutingType.NORMAL,
+        verbose_name="Outing Type",
+    )
+    note = models.CharField(
+        max_length=132,
+        blank=True,
+        null=True,
+        verbose_name="Note",
+        help_text="Anything special regarding the outing."
+    )
     hours = models.DecimalField(
         max_digits=5,
         decimal_places=2,

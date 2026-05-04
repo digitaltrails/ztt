@@ -144,7 +144,7 @@ class OutingInline(admin.TabularInline):
     #can_add = False
     can_delete = False
     show_change_link = True
-    fields = ('date', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers', 'participants',
+    fields = ('date', 'type_of_outing', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers', 'participants',
               'minutes_per_station', 'normalized_minutes_per_station', )
     readonly_fields = ('minutes_per_station', 'normalized_minutes_per_station',)
     verbose_name = "Outing"
@@ -423,13 +423,13 @@ class OutingAdmin(TransectModelAdmin):
         return request.user.is_superuser
 
     form = OutingForm
-    list_display = ('date', 'route_link', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers',
+    list_display = ('date', 'type_of_outing', 'route_link', 'completion_status', 'start_station_id', 'end_station_id', 'hours', 'number_of_workers',
                     'minutes_per_station', 'normalized_minutes_per_station', 'get_participants',)
     list_filter = ('completion_status', 'date', 'participants', 'route',)
     readonly_fields = ('minutes_per_station', 'normalized_minutes_per_station', )
     fieldsets = (
         (None, {
-            'fields': ('date', 'route', 'completion_status', 'hours', 'number_of_workers', 'start_station_id', 'end_station_id',
+            'fields': ('date', 'type_of_outing', 'note', 'route', 'completion_status', 'hours', 'number_of_workers', 'start_station_id', 'end_station_id',
                        'participants',('minutes_per_station', 'normalized_minutes_per_station',) )
         }),
     )
