@@ -127,7 +127,7 @@ class Outing(models.Model):
     completion_status = models.CharField(
         max_length=20,
         choices=CompletionStatus.choices,
-        default=CompletionStatus.COMPLETED
+        default=CompletionStatus.PARTIAL
     )
     start_station_id = models.CharField(
         max_length=5,
